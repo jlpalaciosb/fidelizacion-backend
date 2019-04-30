@@ -1,5 +1,7 @@
-clienteController = require('./cliente');
+clienteController = require('./clienteContr');
+bolsaController = require('./bolsaContr');
 
 module.exports = {
-    clienteController
-}
+  clienteController,
+  bolsaController
+};

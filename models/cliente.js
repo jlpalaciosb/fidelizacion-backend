@@ -4,10 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const Cliente = sequelize.define(
     'Cliente',
     {
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true
-      },
+      // sequelize asume que la tabla tiene una columna `id`
       nombre: DataTypes.STRING,
       apellido: DataTypes.STRING,
       nroDocumento: {
@@ -30,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Cliente.associate = function(models) {
-    // associations can be defined here
+    Cliente.hasMany(models.Bolsa, {as: 'bolsas', foreignKey: 'cliente_id'});
+    Cliente.hasMany(models.Uso, {as: 'usos', foreignKey: 'cliente_id'});
   };
 
   return Cliente;

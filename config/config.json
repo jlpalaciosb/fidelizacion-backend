@@ -4,20 +4,23 @@
     "password": "12345",
     "database": "fidelizacion_db",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "timezone": "America/Asuncion"
   },
   "test": {
     "username": "root",
     "password": "12345",
     "database": "fidelizacion_db",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "timezone": "America/Asuncion"
   },
   "production": {
     "username": "root",
     "password": "12345",
     "database": "fidelizacion_db",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "timezone": "America/Asuncion"
   }
 }
