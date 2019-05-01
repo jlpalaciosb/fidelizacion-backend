@@ -13,6 +13,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/conceptos', conceptoController.validarPost, conceptoController.post);
+router.get('/conceptos', conceptoController.list);
 
 router.get('/clientes', clienteController.list);
 

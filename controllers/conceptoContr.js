@@ -20,9 +20,6 @@ module.exports = {
         } else {
           res.status(400).send({error: 'ya existe otro concepto con esa misma descripción'});
         }
-      }).catch(error => {
-        console.log(error);
-        res.status(500).send();
       });
     }
   },
@@ -34,9 +31,11 @@ module.exports = {
       requerido: req.body.requerido,
     }).then(concepto => {
       res.status(201).send(concepto);
-    }).catch(error => {
-      console.log(error);
-      res.status(500).send();
     });
+  },
+
+  /* listar todos los conceptos */
+  list(req, res) {
+    Concepto.findAll().then(conceptos => res.status(200).send(conceptos));
   },
 };
