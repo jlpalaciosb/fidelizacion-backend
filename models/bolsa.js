@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Bolsa.associate = function(models) {
-    Bolsa.belongsTo(models.Cliente, {foreignKey: 'cliente_id'});
+    Bolsa.belongsTo(models.Cliente, {as: 'cliente', foreignKey: 'cliente_id'});
     Bolsa.hasMany(models.UsoDetalle, {as: 'usosDetalles', foreignKey: 'bolsa_id'});
   };
 

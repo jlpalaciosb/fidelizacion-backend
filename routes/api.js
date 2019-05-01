@@ -15,6 +15,6 @@ router.get('/clientes', clienteController.list);
 
 router.get('/clientes/bolsa', clienteController.deBolsa);
 
-router.get('/bolsa', bolsaController.list);
+router.get('/bolsas/', bolsaController.procesarQueryParams, bolsaController.list);
 
 module.exports = router;
