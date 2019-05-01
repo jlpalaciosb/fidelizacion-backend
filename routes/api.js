@@ -21,4 +21,6 @@ router.get('/bolsa', bolsaController.list);
 //uso
 router.get('/uso', usoController.getUso);
 
+//asignar puntos
+router.get('/cliente/:idCliente/monto/:monto', clienteController.addPuntos);
 module.exports = router;
