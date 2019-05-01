@@ -77,7 +77,7 @@ module.exports = {
           descripcion: req.body.descripcion,
           requerido: req.body.requerido,
         }).then(() => {
-          res.status(200).send({msg: 'concepto actualizado'});
+          res.status(200).send({success: 'concepto actualizado'});
         }).catch((error) => {
           if(error.name === 'SequelizeUniqueConstraintError') {
             res.status(400).send({error: 'ya existe otro concepto con la misma descripción'});
@@ -98,7 +98,13 @@ module.exports = {
         return concepto.destroy();
       }
     }).then(() => {
-      res.status(200).send({msg: `concepto con id igual a ${req.params.id} eliminado`});
+      res.status(200).send({success: `concepto eliminado`});
+    }).catch((error) => {
+      if(error.name === 'SequelizeForeignKeyConstraintError') {
+        res.status(400).send({error: 'no se puede eliminar el concepto porque es referenciado por un uso'});
+      } else {
+        console.log(error);
+      }
     });
   }
 };
