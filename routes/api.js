@@ -23,4 +23,6 @@ router.get('/uso', usoController.getUso);
 
 //asignar puntos
 router.get('/cliente/:idCliente/monto/:monto', clienteController.addPuntos);
+//consultar puntos desde monto
+router.get('/punto/monto/:monto', clienteController.getPuntosDeMonto);
 module.exports = router;

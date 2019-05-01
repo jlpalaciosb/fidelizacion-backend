@@ -65,5 +65,30 @@ module.exports = {
                 console.log(error);
                 res.status(500).send('error del servidor');
             });
+    },
+    //servicio 8.c
+    getPuntosDeMonto(req,res){
+        return Regla.findAll(
+            {
+                where:{
+                    [Op.and]:[{limInferior:{[Op.lte]:req.params.monto}},{limSuperior:{[Op.gte]:req.params.monto}}]
+                }
+            }
+
+        )
+            .then(reglas =>{
+                var puntosCalculados=0;
+                reglas.forEach( function(valor, indice, array) {
+
+                    puntosCalculados = puntosCalculados+ Math.floor(req.params.monto / valor.equivalencia);
+
+
+                });
+                res.status(200).send({puntos:puntosCalculados})
+            })
+            .catch(error => {
+                console.log(error);
+                res.status(500).send('error del servidor');
+            });
     }
 };
