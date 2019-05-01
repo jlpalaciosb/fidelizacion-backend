@@ -1,9 +1,9 @@
 -- script de creación de la base de datos y sus tablas
 
--- drop database if exists fidelizacion_db;
--- create database fidelizacion_db character set utf8;
+drop database if exists fidelizacion_db;
+create database fidelizacion_db character set utf8;
 
--- use fidelizacion_db;
+use fidelizacion_db;
 
 CREATE TABLE `cliente` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

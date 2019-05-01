@@ -3,6 +3,7 @@ var router = express.Router();
 
 const clienteController = require('../controllers').clienteController;
 const bolsaController = require('../controllers').bolsaController;
+const usoController= require('../controllers').usoController;
 
 router.get('/', function(req, res, next) {
   a = {};
@@ -16,5 +17,8 @@ router.get('/clientes', clienteController.list);
 router.get('/clientes/bolsa', clienteController.deBolsa);
 
 router.get('/bolsa', bolsaController.list);
+
+//uso
+router.get('/uso', usoController.getUso);
 
 module.exports = router;
