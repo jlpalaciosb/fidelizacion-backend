@@ -13,6 +13,9 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/clientes', clienteController.list);
+router.post('/clientes', clienteController.addCliente);
+//asignar puntos
+router.post('/clientes/:idCliente/', clienteController.addPuntos);
 
 router.get('/clientes/bolsa', clienteController.deBolsa);
 
@@ -21,8 +24,7 @@ router.get('/bolsa', bolsaController.list);
 //uso
 router.get('/uso', usoController.getUso);
 
-//asignar puntos
-router.get('/cliente/:idCliente/monto/:monto', clienteController.addPuntos);
+
 //consultar puntos desde monto
-router.get('/punto/monto/:monto', clienteController.getPuntosDeMonto);
+router.get('/puntos/monto/:monto', clienteController.getPuntosDeMonto);
 module.exports = router;

@@ -17,6 +17,23 @@ module.exports = {
         }
       );
   },
+    addCliente(req,res){
+        return Cliente.create({
+            nombre: req.body.nombre,
+            apellido : req.body.apellido,
+            nroDocumento :  req.body.nroDocumento,
+            tipoDocumento: req.body.tipoDocumento,
+            pais: req.body.pais,
+            email: req.body.email,
+            telefono: req.body.telefono,
+            nacimiento: req.body.nacimiento
+        })
+            .then(
+                (cliente) => res.status(201).send(cliente))
+
+            .catch(
+                (error) => res.status(400).send(error))
+    },
   deBolsa(req, res) {
     return Bolsa.findAll()
       .then(bolsas => Cliente.findByPk(bolsas[0].cliente_id))
@@ -31,7 +48,7 @@ module.exports = {
         return Regla.findAll(
             {
                 where:{
-                    [Op.and]:[{limInferior:{[Op.lte]:req.params.monto}},{limSuperior:{[Op.gte]:req.params.monto}}]
+                    [Op.and]:[{limInferior:{[Op.lte]:req.body.monto}},{limSuperior:{[Op.gte]:req.body.monto}}]
                 }
             }
 
@@ -44,7 +61,7 @@ module.exports = {
 
                 reglas.forEach( function(valor, indice, array) {
 
-                    puntosCalculados = puntosCalculados+ Math.floor(req.params.monto / valor.equivalencia);
+                    puntosCalculados = puntosCalculados+ Math.floor(req.body.monto / valor.equivalencia);
 
 
                 });
