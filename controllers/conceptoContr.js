@@ -49,4 +49,22 @@ module.exports = {
       }
     });
   },
+
+  /* actualiza un concepto */
+  update(req, res) {
+    
+  },
+
+  /* elimina un concepto en específico */
+  delete(req, res) {
+    Concepto.findByPk(req.params.id).then(concepto => {
+      if(concepto === null) {
+        res.status(404).send();
+      } else {
+        return concepto.destroy();
+      }
+    }).then(() => {
+      res.status(200).send({msg: `concepto con id igual a ${req.params.id} eliminado`});
+    });
+  }
 };
