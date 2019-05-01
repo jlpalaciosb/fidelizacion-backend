@@ -17,8 +17,9 @@ module.exports = {
   },
   deBolsa(req, res) {
     return Bolsa.findAll()
-      .then(bolsas => Cliente.findByPk(bolsas[0].cliente_id))
-      .then(cliente => res.status(200).send(cliente))
+      .then(bolsas => {
+        return Cliente.findByPk(bolsas[0].cliente_id)
+      }).then(cliente => res.status(200).send(cliente))
       .catch(error => {
         console.log(error);
         res.status(500).send('error del servidor');

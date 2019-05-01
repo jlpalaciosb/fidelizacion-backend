@@ -1,8 +1,9 @@
-var express = require('express');
-var router = express.Router();
-
+const express = require('express');
 const clienteController = require('../controllers').clienteController;
 const bolsaController = require('../controllers').bolsaController;
+const conceptoController = require('../controllers').conceptoController;
+
+const router = express.Router();
 
 router.get('/', function(req, res, next) {
   a = {};
@@ -10,6 +11,8 @@ router.get('/', function(req, res, next) {
   a.a = 'welcome to the api';
   res.send(b.a.a);
 });
+
+router.post('/conceptos', conceptoController.validarPost, conceptoController.post);
 
 router.get('/clientes', clienteController.list);
 
