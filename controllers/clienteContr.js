@@ -1,27 +1,27 @@
 const Cliente = require('../models').Cliente;
 const Bolsa = require('../models').Bolsa;
-const Regla= require('../models').Regla;
-const Op= require('../models').Sequelize.Op;
-const sequelize= require('../models').sequelize;
+const Regla = require('../models').Regla;
+const Op = require('../models').Sequelize.Op;
+const sequelize = require('../models').sequelize;
 module.exports = {
-  list(req, res) {
-    return Cliente.findAll()
-      .then(
-        (clientes) => {
-          res.status(200).send(clientes[0]);
-        }
-      )
-      .catch(
-        (error) => {
-          res.status(400).send(error);
-        }
-      );
-  },
-    addCliente(req,res){
+    list(req, res) {
+        return Cliente.findAll()
+            .then(
+                (clientes) => {
+                    res.status(200).send(clientes[0]);
+                }
+            )
+            .catch(
+                (error) => {
+                    res.status(400).send(error);
+                }
+            );
+    },
+    addCliente(req, res) {
         return Cliente.create({
             nombre: req.body.nombre,
-            apellido : req.body.apellido,
-            nroDocumento :  req.body.nroDocumento,
+            apellido: req.body.apellido,
+            nroDocumento: req.body.nroDocumento,
             tipoDocumento: req.body.tipoDocumento,
             pais: req.body.pais,
             email: req.body.email,
@@ -34,49 +34,70 @@ module.exports = {
             .catch(
                 (error) => res.status(400).send(error))
     },
-  deBolsa(req, res) {
-    return Bolsa.findAll()
-      .then(bolsas => Cliente.findByPk(bolsas[0].cliente_id))
-      .then(cliente => res.status(200).send(cliente))
-      .catch(error => {
-        console.log(error);
-        res.status(500).send('error del servidor');
-      });
-  },
-    //servicio 8.a
-    addPuntos(req,res){
-        return Regla.findAll(
+    putCliente(req,res){
+        return Cliente.update({
+            nombre: req.body.nombre,
+            apellido: req.body.apellido,
+            nroDocumento: req.body.nroDocumento,
+            tipoDocumento: req.body.tipoDocumento,
+            pais: req.body.pais,
+            email: req.body.email,
+            telefono: req.body.telefono,
+            nacimiento: req.body.nacimiento
+        },
             {
                 where:{
-                    [Op.and]:[{limInferior:{[Op.lte]:req.body.monto}},{limSuperior:{[Op.gte]:req.body.monto}}]
+                    id:req.params.idCliente
+                }
+            })
+            .then(
+                (cliente) => res.status(200).send(cliente))
+
+            .catch(
+                (error) => res.status(400).send(error))
+    },
+    deBolsa(req, res) {
+        return Bolsa.findAll()
+            .then(bolsas => Cliente.findByPk(bolsas[0].cliente_id))
+            .then(cliente => res.status(200).send(cliente))
+            .catch(error => {
+                console.log(error);
+                res.status(500).send('error del servidor');
+            });
+    },
+    //servicio 8.a
+    addPuntos(req, res) {
+        return Regla.findAll(
+            {
+                where: {
+                    [Op.and]: [{limInferior: {[Op.lte]: req.body.monto}}, {limSuperior: {[Op.gte]: req.body.monto}}]
                 }
             }
-
         )
             .then(reglas => {
-                var puntosCalculados=0;
+                var puntosCalculados = 0;
                 var fechaAhora = new Date();
                 //para vencimiento en 30 dias
                 fechaAhora.setDate(fechaAhora.getDate() + 30);
 
-                reglas.forEach( function(valor, indice, array) {
+                reglas.forEach(function (valor, indice, array) {
 
-                    puntosCalculados = puntosCalculados+ Math.floor(req.body.monto / valor.equivalencia);
+                    puntosCalculados = puntosCalculados + Math.floor(req.body.monto / valor.equivalencia);
 
 
                 });
                 // Asignar puntaje segun reglas
                 return Bolsa.create(
                     {
-                        cliente_id:req.params.idCliente,
+                        cliente_id: req.params.idCliente,
                         fechaCaducidad: fechaAhora.toString(),
                         asignado: puntosCalculados,
-                        saldo:puntosCalculados,
+                        saldo: puntosCalculados,
                         montoOp: 0
                     }
                 )
-                    .then( (bolsa)=> res.status(201).send(bolsa))
-                    .catch((error)=> res.status(500).send(error))
+                    .then((bolsa) => res.status(201).send(bolsa))
+                    .catch((error) => res.status(500).send(error))
             })
             .catch(error => {
                 console.log(error);
@@ -84,24 +105,23 @@ module.exports = {
             });
     },
     //servicio 8.c
-    getPuntosDeMonto(req,res){
+    getPuntosDeMonto(req, res) {
         return Regla.findAll(
             {
-                where:{
-                    [Op.and]:[{limInferior:{[Op.lte]:req.params.monto}},{limSuperior:{[Op.gte]:req.params.monto}}]
+                where: {
+                    [Op.and]: [{limInferior: {[Op.lte]: req.params.monto}}, {limSuperior: {[Op.gte]: req.params.monto}}]
                 }
             }
-
         )
-            .then(reglas =>{
-                var puntosCalculados=0;
-                reglas.forEach( function(valor, indice, array) {
+            .then(reglas => {
+                var puntosCalculados = 0;
+                reglas.forEach(function (valor, indice, array) {
 
-                    puntosCalculados = puntosCalculados+ Math.floor(req.params.monto / valor.equivalencia);
+                    puntosCalculados = puntosCalculados + Math.floor(req.params.monto / valor.equivalencia);
 
 
                 });
-                res.status(200).send({puntos:puntosCalculados})
+                res.status(200).send({puntos: puntosCalculados})
             })
             .catch(error => {
                 console.log(error);
