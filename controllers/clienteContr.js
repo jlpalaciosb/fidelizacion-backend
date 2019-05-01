@@ -17,45 +17,6 @@ module.exports = {
                 }
             );
     },
-    addCliente(req, res) {
-        return Cliente.create({
-            nombre: req.body.nombre,
-            apellido: req.body.apellido,
-            nroDocumento: req.body.nroDocumento,
-            tipoDocumento: req.body.tipoDocumento,
-            pais: req.body.pais,
-            email: req.body.email,
-            telefono: req.body.telefono,
-            nacimiento: req.body.nacimiento
-        })
-            .then(
-                (cliente) => res.status(201).send(cliente))
-
-            .catch(
-                (error) => res.status(400).send(error))
-    },
-    putCliente(req,res){
-        return Cliente.update({
-            nombre: req.body.nombre,
-            apellido: req.body.apellido,
-            nroDocumento: req.body.nroDocumento,
-            tipoDocumento: req.body.tipoDocumento,
-            pais: req.body.pais,
-            email: req.body.email,
-            telefono: req.body.telefono,
-            nacimiento: req.body.nacimiento
-        },
-            {
-                where:{
-                    id:req.params.idCliente
-                }
-            })
-            .then(
-                (cliente) => res.status(200).send(cliente))
-
-            .catch(
-                (error) => res.status(400).send(error))
-    },
     deBolsa(req, res) {
         return Bolsa.findAll()
             .then(bolsas => Cliente.findByPk(bolsas[0].cliente_id))

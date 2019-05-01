@@ -13,8 +13,6 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/clientes', clienteController.list);
-router.post('/clientes', clienteController.addCliente);
-router.put('/clientes/:idCliente', clienteController.putCliente);
 
 //asignar puntos
 router.post('/clientes/:idCliente/', clienteController.addPuntos);
