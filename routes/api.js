@@ -14,6 +14,7 @@ router.get('/', function(req, res, next) {
 
 router.post('/conceptos', conceptoController.validarPost, conceptoController.post);
 router.get('/conceptos', conceptoController.list);
+router.get('/conceptos/:id(\\d+)', conceptoController.get);
 
 router.get('/clientes', clienteController.list);
 

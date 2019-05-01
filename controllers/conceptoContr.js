@@ -38,4 +38,15 @@ module.exports = {
   list(req, res) {
     Concepto.findAll().then(conceptos => res.status(200).send(conceptos));
   },
+
+  /* retornar un concepto en específico */
+  get(req, res) {
+    Concepto.findByPk(req.params.id).then(concepto => {
+      if(concepto !== null) {
+        res.status(200).send(concepto);
+      } else {
+        res.status(404).send();
+      }
+    });
+  },
 };
