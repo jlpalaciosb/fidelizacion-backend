@@ -24,6 +24,10 @@ router.get('/conceptos/:id(\\d+)',
   (req, res, next) => {console.log(`Obtener concepto con id igual a ${req.params.id}`); next();},
   conceptoController.get
 );
+router.put('/conceptos/:id(\\d+)',
+  (req, res, next) => {console.log(`Actualizar concepto con id igual a ${req.params.id}`); next();},
+  conceptoController.validarUpdate, conceptoController.update
+);
 router.delete('/conceptos/:id(\\d+)',
   (req, res, next) => {console.log(`Eliminar concepto con id igual a ${req.params.id}`); next();},
   conceptoController.delete

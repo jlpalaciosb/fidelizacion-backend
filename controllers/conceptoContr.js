@@ -10,17 +10,9 @@ module.exports = {
     } else if(typeof(requerido) !== 'number' || parseInt(requerido) <= 0) {
       res.status(400).send({error: 'especifique (correctamente) la cantidad requerida de puntos'});
     } else {
-      Concepto.count({
-        where: {descripcion: descripcion.trim()}
-      }).then(c => {
-        if(c == 0) {
-          req.body.descripcion = descripcion.trim();
-          req.body.requerido = parseInt(requerido);
-          next();
-        } else {
-          res.status(400).send({error: 'ya existe otro concepto con esa misma descripción'});
-        }
-      });
+      req.body.descripcion = descripcion.trim();
+      req.body.requerido = parseInt(requerido);
+      next();
     }
   },
 
@@ -31,6 +23,12 @@ module.exports = {
       requerido: req.body.requerido,
     }).then(concepto => {
       res.status(201).send(concepto);
+    }).catch((error) => {
+      if(error.name === 'SequelizeUniqueConstraintError') {
+        res.status(400).send({error: 'ya existe otro concepto con la misma descripción'});
+      } else {
+        console.log(error);
+      }
     });
   },
 
@@ -50,9 +48,45 @@ module.exports = {
     });
   },
 
-  /* actualiza un concepto */
+  /* validacion de los argumentos recibidos para actualizar un nuevo concepto */
+  validarUpdate(req, res, next) {
+    const descripcion = req.body.descripcion;
+    const requerido = req.body.requerido;
+    if(descripcion !== undefined && typeof(descripcion) !== 'string') {
+      res.status(400).send({error: 'especifique la descripcion correctamente'});
+    } else if(typeof(descripcion) === 'string' && descripcion.trim() === '') {
+      res.status(400).send({error: 'especifique la descripcion correctamente'});
+    } else if(requerido !== undefined && typeof(requerido) !== 'number') {
+      res.status(400).send({error: 'especifique correctamente la cantidad requerida de puntos'});
+    } else if(requerido !== undefined && parseInt(requerido) <= 0) {
+      res.status(400).send({error: 'especifique correctamente la cantidad requerida de puntos'});
+    } else {
+      if(descripcion !== undefined) req.body.descripcion = descripcion.trim();
+      if(requerido !== undefined) req.body.requerido = parseInt(requerido);
+      next();
+    }
+  },
+
+  /* actualiza un concepto (ya validado) */
   update(req, res) {
-    
+    Concepto.findByPk(req.params.id).then(concepto => {
+      if(concepto === null) {
+        res.status(404).send();
+      } else {
+        concepto.update({
+          descripcion: req.body.descripcion,
+          requerido: req.body.requerido,
+        }).then(() => {
+          res.status(200).send({msg: 'concepto actualizado'});
+        }).catch((error) => {
+          if(error.name === 'SequelizeUniqueConstraintError') {
+            res.status(400).send({error: 'ya existe otro concepto con la misma descripción'});
+          } else {
+            console.log(error);
+          }
+        });
+      }
+    });
   },
 
   /* elimina un concepto en específico */
