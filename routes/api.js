@@ -2,6 +2,7 @@ const express = require('express');
 const clienteController = require('../controllers').clienteController;
 const bolsaController = require('../controllers').bolsaController;
 const conceptoController = require('../controllers').conceptoController;
+const usoController = require('../controllers').usoController;
 
 const router = express.Router();
 
@@ -40,6 +41,11 @@ router.get('/clientes/bolsa', clienteController.deBolsa);
 router.get('/bolsas/',
   (req, res, next) => {console.log(`Listar bolsas (para reporte)`); next();},
   bolsaController.procesarQueryParams, bolsaController.list
+);
+
+router.post('/usarPuntos',
+  (req, res, next) => {console.log('Uso de puntos'); next();},
+  usoController.validarUsarPuntos, usoController.usarPuntos,
 );
 
 module.exports = router;
