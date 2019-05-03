@@ -3,7 +3,7 @@ const Bolsa = require('../models').Bolsa;
 
 module.exports = {
   list(req, res) {
-    return Cliente.findAll()
+    Cliente.findAll()
       .then(
         (clientes) => {
           res.status(200).send(clientes[0]);
@@ -16,7 +16,7 @@ module.exports = {
       );
   },
   deBolsa(req, res) {
-    return Bolsa.findAll()
+    Bolsa.findAll()
       .then(bolsas => {
         return Cliente.findByPk(bolsas[0].cliente_id)
       }).then(cliente => res.status(200).send(cliente))

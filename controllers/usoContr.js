@@ -2,6 +2,7 @@ const Cliente = require('../models').Cliente;
 const Concepto = require('../models').Concepto;
 const Bolsa = require('../models').Bolsa;
 const Uso = require('../models').Uso;
+const UsoDetalle = require('../models').UsoDetalle;
 const Op = require('sequelize').Op;
 
 module.exports = {
@@ -51,6 +52,33 @@ module.exports = {
     const cliente = req.cliente;
     const concepto = req.concepto;
     const bolsas = req.bolsas;
-    res.status(200).send({cliente, concepto, bolsas});
+    Uso.create({
+      utilizado: concepto.requerido,
+      fecha: new Date(),
+      cliente_id: cliente.id,
+      concepto_id: concepto.id,
+    }).then((uso) => {
+      const usoDetalles = [];
+      const bolsasUsadas = [];
+      var utilizar = concepto.requerido;
+      var bindex = 0;
+      while(utilizar > 0) {
+        var bolsa = bolsas[bindex];
+        var usar = Math.min(utilizar, bolsa.saldo);
+        usoDetalles.push(UsoDetalle.build({
+          uso_id: uso.id,
+          bolsa_id: bolsa.id,
+          utilizado: usar,
+        }));
+        bolsa.utilizado += usar;
+        bolsa.saldo -= usar;
+        utilizar -= usar;
+        bindex += 1;
+        bolsasUsadas.push(bolsa);
+      }
+      bolsasUsadas.forEach(bolsa => bolsa.save({fields: ['utilizado', 'saldo']})); // then? bulk save?
+      usoDetalles.forEach(usoDetalle => usoDetalle.save()); // then? bulk create?
+      res.status(200).send({success: 'puntos utilizados exitosamente'});
+    });
   }
 };
