@@ -36,6 +36,9 @@ router.delete('/conceptos/:id(\\d+)',
 
 router.get('/clientes', clienteController.list);
 
+//asignar puntos
+router.post('/clientes/:idCliente/', clienteController.addPuntos);
+
 router.get('/clientes/bolsa', clienteController.deBolsa);
 
 router.get('/bolsas/',
@@ -48,4 +51,10 @@ router.post('/usarPuntos',
   usoController.validarUsarPuntos, usoController.usarPuntos,
 );
 
+//uso
+router.get('/uso', usoController.getUso);
+
+
+//consultar puntos desde monto
+router.get('/puntos/monto/:monto', clienteController.getPuntosDeMonto);
 module.exports = router;
