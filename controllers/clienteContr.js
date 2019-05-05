@@ -10,7 +10,7 @@ module.exports = {
     Cliente.findAll()
       .then(
         (clientes) => {
-          res.status(200).send(clientes[0]);
+          res.status(200).send(clientes);
         }
       )
       .catch(
@@ -25,7 +25,7 @@ module.exports = {
     return Regla.findAll(
       {
         where: {
-          [Op.and]: [{ limInferior: { [Op.lte]: req.body.monto } }, { limSuperior: { [Op.gte]: req.body.monto } }]
+          [Op.and]: [{ limInferior: { [Op.lte]: req.body.monto } }, { limSuperior: { [Op.gt]: req.body.monto } }]
         }
       }
     )
@@ -44,11 +44,11 @@ module.exports = {
         // Asignar puntaje segun reglas
         return Bolsa.create(
           {
-            cliente_id: req.params.idCliente,
+            cliente_id: req.body.idCliente,
             fechaCaducidad: fechaAhora.toString(),
             asignado: puntosCalculados,
             saldo: puntosCalculados,
-            montoOp: 0
+            montoOp: req.body.monto
           }
         )
           .then((bolsa) => res.status(201).send(bolsa))
@@ -65,7 +65,7 @@ module.exports = {
     return Regla.findAll(
       {
         where: {
-          [Op.and]: [{ limInferior: { [Op.lte]: req.params.monto } }, { limSuperior: { [Op.gte]: req.params.monto } }]
+          [Op.and]: [{ limInferior: { [Op.lte]: req.query.monto } }, { limSuperior: { [Op.gte]: req.query.monto } }]
         }
       }
     )
@@ -73,7 +73,7 @@ module.exports = {
         var puntosCalculados = 0;
         reglas.forEach(function (valor, indice, array) {
 
-          puntosCalculados = puntosCalculados + Math.floor(req.params.monto / valor.equivalencia);
+          puntosCalculados = puntosCalculados + Math.floor(req.query.monto / valor.equivalencia);
 
 
         });

@@ -36,10 +36,8 @@ router.delete('/conceptos/:id(\\d+)',
 
 router.get('/clientes', clienteController.list);
 
-//asignar puntos
-router.post('/clientes/:idCliente/', clienteController.addPuntos);
-
-router.get('/clientes/bolsa', clienteController.deBolsa);
+// asignar puntos (se genera una Bolsa)
+router.post('/bolsas/', clienteController.addPuntos);
 
 router.get('/bolsas/',
   (req, res, next) => {console.log(`Listar bolsas (para reporte)`); next();},
@@ -52,9 +50,9 @@ router.post('/usarPuntos',
 );
 
 //uso
-router.get('/uso', usoController.getUso);
+router.get('/usos', usoController.getUso);
 
 
 //consultar puntos desde monto
-router.get('/puntos/monto/:monto', clienteController.getPuntosDeMonto);
+router.get('/equivalenciaPuntos', clienteController.getPuntosDeMonto);
 module.exports = router;
