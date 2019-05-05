@@ -106,7 +106,7 @@ module.exports = {
 
     return models.Uso.findAll({
       attributes: ['id', 'utilizado', 'fecha'],
-      include: [{ model: models.Cliente, as: 'Cliente' }, { model: models.Concepto, as: 'Concepto' }],
+      include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Concepto, as: 'concepto' }],
       where: where
     })
       .then(usos => res.status(200).send(usos))

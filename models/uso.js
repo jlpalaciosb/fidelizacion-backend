@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Uso.associate = function(models) {
-    Uso.belongsTo(models.Cliente, {foreignKey: 'cliente_id'});
-    Uso.belongsTo(models.Concepto, {foreignKey: 'concepto_id'});
+    Uso.belongsTo(models.Cliente, {as: 'cliente', foreignKey: 'cliente_id'});
+    Uso.belongsTo(models.Concepto, {as: 'concepto', foreignKey: 'concepto_id'});
     Uso.hasMany(models.UsoDetalle, {as: 'detalles', foreignKey: 'uso_id'});
   };
 
