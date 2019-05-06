@@ -31,7 +31,6 @@ module.exports = {
             }
         )
             .then(reglas => {
-                var puntosCalculados = 0;
                 var fechaAhora = new Date();
 
                 //calcular fecha de caducidad de acuerdo a la fecha de asignacion
@@ -43,7 +42,7 @@ module.exports = {
                 )
                     .then(paramDuracion=>{
                         //calculo de puntos desde reglas
-                        puntosCalculados = puntosCalculados + Math.floor(req.body.monto / reglas[0].equivalencia);
+                        var puntosCalculados = Math.floor(req.body.monto / reglas[0].equivalencia);
                         //para vencimiento en puntaje en dias
                         var fechaVencimiento=new Date();
                         fechaVencimiento.setDate(fechaAhora.getDate() + paramDuracion[0].duracion);
