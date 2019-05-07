@@ -45,5 +45,17 @@ module.exports = {
         })
             .catch(error => res.status(500).send({error: "Error al actualizar parametro de vencimiento"}));
     },
+    delete (req, res) {
+        return models.ParamDuracion.destroy({
+            where: {
+                id:req.params.idVencimiento
+            }
+        })
+            .then(paramDuracion => {
+                res.status(200).end();
+            })
+            .catch(
+                (error) => res.status(400).send({error:"Error al intentar eliminar vencimiento de punto"}));
+    }
 
 };

@@ -57,6 +57,7 @@ router.post('/punto/vencimiento',
 router.get('/punto/vencimiento', puntoController.lista);
 router.get('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.getVencimiento);
 router.put('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.putVencimiento);
+router.delete('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.delete);
 
 
 //uso
