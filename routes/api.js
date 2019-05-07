@@ -49,15 +49,41 @@ router.post('/usarPuntos',
   (req, res, next) => {console.log('Uso de puntos'); next();},
   usoController.validarUsarPuntos, usoController.usarPuntos,
 );
-//administracion de vencimiento de puntos
-router.post('/punto/vencimiento',
-    (req, res, next) => {console.log('Nuevo vencimiento de puntos'); next();},
+//3. administracion de reglas
+router.post('/puntos/reglas',
+    (req, res, next) => {console.log('POST regla de puntos'); next();},
+    puntoController.nuevaRegla
+);
+router.get('/puntos/reglas',
+    (req, res, next) => {console.log('GET lista de reglas de asignacion de puntos'); next();},
+    puntoController.listaReglas);
+router.get('/puntos/reglas/:idRegla(\\d+)',
+    (req, res, next) => {console.log('GET regla por idRegla'); next();},
+    puntoController.getRegla);
+router.put('/puntos/reglas/:idRegla(\\d+)',
+    (req, res, next) => {console.log('PUT regla'); next();},
+    puntoController.putRegla);
+router.delete('/puntos/reglas/:idRegla(\\d+)',
+    (req, res, next) => {console.log('DELETE regla'); next();},
+    puntoController.deleteRegla);
+
+//4. administracion de vencimiento de puntos
+router.post('/puntos/vencimientos',
+    (req, res, next) => {console.log('POST vencimiento de puntos'); next();},
     puntoController.nuevoVencimiento
 );
-router.get('/punto/vencimiento', puntoController.lista);
-router.get('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.getVencimiento);
-router.put('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.putVencimiento);
-router.delete('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.delete);
+router.get('/puntos/vencimientos',
+    (req, res, next) => {console.log('GET lista vencimientos'); next();},
+    puntoController.listaVencimiento);
+router.get('/puntos/vencimientos/:idVencimiento(\\d+)',
+    (req, res, next) => {console.log('GET vencimiento por idVencimiento'); next();},
+    puntoController.getVencimiento);
+router.put('/puntos/vencimientos/:idVencimiento(\\d+)',
+    (req, res, next) => {console.log('PUT vencimiento'); next();},
+    puntoController.putVencimiento);
+router.delete('/puntos/vencimientos/:idVencimiento(\\d+)',
+    (req, res, next) => {console.log('DELETE vencimiento'); next();},
+    puntoController.deleteVencimiento);
 
 
 //uso
