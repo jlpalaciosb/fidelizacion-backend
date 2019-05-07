@@ -54,6 +54,8 @@ router.post('/punto/vencimiento',
     (req, res, next) => {console.log('Nuevo vencimiento de puntos'); next();},
     puntoController.nuevoVencimiento
 );
+router.get('/punto/vencimiento', puntoController.lista);
+
 //uso
 router.get('/usos', usoController.getUso);
 

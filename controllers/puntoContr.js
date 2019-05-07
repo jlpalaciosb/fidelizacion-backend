@@ -2,7 +2,19 @@ const models = require('../models');
 
 
 module.exports = {
-
+    lista(req, res) {
+        return models.ParamDuracion.findAll()
+            .then(
+                (paramDuracion) => {
+                    res.status(200).send(paramDuracion);
+                }
+            )
+            .catch(
+                (error) => {
+                    res.status(500).send(error);
+                }
+            );
+    },
     nuevoVencimiento(req, res) {
         return models.ParamDuracion.create({
             validezIni: new Date(req.body.validezIni.replace(/-/g, '\/')),
