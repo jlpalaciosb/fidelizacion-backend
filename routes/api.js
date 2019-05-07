@@ -6,6 +6,13 @@ const usoController = require('../controllers').usoController;
 
 const router = express.Router();
 
+// Habilitar CORS
+router.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 router.get('/', function(req, res, next) {
   a = {};
   b = {a};
