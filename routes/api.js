@@ -54,5 +54,5 @@ router.get('/usos', usoController.getUso);
 
 
 //consultar puntos desde monto
-router.get('/equivalenciaPuntos', clienteController.getPuntosDeMonto);
+router.get('/equivalenciaPuntos/:monto', clienteController.getPuntosDeMonto);
 module.exports = router;

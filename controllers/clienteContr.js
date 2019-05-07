@@ -72,18 +72,12 @@ module.exports = {
         return Regla.findAll(
             {
                 where: {
-                    [Op.and]: [{limInferior: {[Op.lte]: req.query.monto}}, {limSuperior: {[Op.gte]: req.query.monto}}]
+                    [Op.and]: [{limInferior: {[Op.lte]: req.params.monto}}, {limSuperior: {[Op.gte]: req.params.monto}}]
                 }
             }
         )
             .then(reglas => {
-                var puntosCalculados = 0;
-                reglas.forEach(function (valor, indice, array) {
-
-                    puntosCalculados = puntosCalculados + Math.floor(req.query.monto / valor.equivalencia);
-
-
-                });
+                var puntosCalculados = Math.floor(req.params.monto / reglas[0].equivalencia);
                 res.status(200).send({puntos: puntosCalculados})
             })
             .catch(error => {
