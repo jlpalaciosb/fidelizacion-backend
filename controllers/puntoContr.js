@@ -30,6 +30,20 @@ module.exports = {
         })
             .catch(error => res.status(500).send({error: "Error al crear parametro de vencimiento"}));
     },
-
+    putVencimiento(req, res) {
+        return models.ParamDuracion.update({
+            validezIni: new Date(req.body.validezIni.replace(/-/g, '\/')),
+            validezFin: new Date(req.body.validezFin.replace(/-/g, '\/')),
+            duracion: req.body.duracion
+        },
+            {
+                where:{
+                    id:req.params.idVencimiento
+                }
+            }).then((paramVencimiento) => {
+            res.status(201).send({success: 'Parametro de vencimiento actualizado correctamente.'});
+        })
+            .catch(error => res.status(500).send({error: "Error al actualizar parametro de vencimiento"}));
+    },
 
 };

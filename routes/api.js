@@ -55,11 +55,14 @@ router.post('/punto/vencimiento',
     puntoController.nuevoVencimiento
 );
 router.get('/punto/vencimiento', puntoController.lista);
-router.get('/punto/vencimiento/:idVencimiento', puntoController.getVencimiento);
+router.get('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.getVencimiento);
+router.put('/punto/vencimiento/:idVencimiento(\\d+)', puntoController.putVencimiento);
+
+
 //uso
 router.get('/usos', usoController.getUso);
 
 
 //consultar puntos desde monto
-router.get('/equivalenciaPuntos/:monto', clienteController.getPuntosDeMonto);
+router.get('/equivalenciaPuntos/:monto(\\d+)', clienteController.getPuntosDeMonto);
 module.exports = router;
