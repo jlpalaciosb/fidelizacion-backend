@@ -3,6 +3,7 @@ const clienteController = require('../controllers').clienteController;
 const bolsaController = require('../controllers').bolsaController;
 const conceptoController = require('../controllers').conceptoController;
 const usoController = require('../controllers').usoController;
+const puntoController = require('../controllers').puntoController;
 
 const router = express.Router();
 
@@ -48,7 +49,11 @@ router.post('/usarPuntos',
   (req, res, next) => {console.log('Uso de puntos'); next();},
   usoController.validarUsarPuntos, usoController.usarPuntos,
 );
-
+//administracion de vencimiento de puntos
+router.post('/punto/vencimiento',
+    (req, res, next) => {console.log('Nuevo vencimiento de puntos'); next();},
+    puntoController.nuevoVencimiento
+);
 //uso
 router.get('/usos', usoController.getUso);
 
