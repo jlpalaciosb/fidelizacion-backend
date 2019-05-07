@@ -55,7 +55,7 @@ router.post('/punto/vencimiento',
     puntoController.nuevoVencimiento
 );
 router.get('/punto/vencimiento', puntoController.lista);
-
+router.get('/punto/vencimiento/:idVencimiento', puntoController.getVencimiento);
 //uso
 router.get('/usos', usoController.getUso);
 

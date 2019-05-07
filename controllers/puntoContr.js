@@ -15,6 +15,11 @@ module.exports = {
                 }
             );
     },
+    getVencimiento(req,res){
+      return models.ParamDuracion.findByPk(req.params.idVencimiento)
+          .then(paramDuracion=> res.status(200).send(paramDuracion))
+          .catch(error=>res.status(500).send({error:"Error al obtener vencimiento de punto"}))
+    },
     nuevoVencimiento(req, res) {
         return models.ParamDuracion.create({
             validezIni: new Date(req.body.validezIni.replace(/-/g, '\/')),
