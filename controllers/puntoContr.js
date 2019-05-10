@@ -1,0 +1,119 @@
+const models = require('../models');
+
+
+module.exports = {
+    listaVencimiento(req, res) {
+        return models.ParamDuracion.findAll()
+            .then(
+                (paramDuracion) => {
+                    res.status(200).send(paramDuracion);
+                }
+            )
+            .catch(
+                (error) => {
+                    res.status(500).send(error);
+                }
+            );
+    },
+    getVencimiento(req,res){
+      return models.ParamDuracion.findByPk(req.params.idVencimiento)
+          .then(paramDuracion=> res.status(200).send(paramDuracion))
+          .catch(error=>res.status(500).send({error:"Error al obtener vencimiento de punto"}))
+    },
+    nuevoVencimiento(req, res) {
+        return models.ParamDuracion.create({
+            validezIni: new Date(req.body.validezIni.replace(/-/g, '\/')),
+            validezFin: new Date(req.body.validezFin.replace(/-/g, '\/')),
+            duracion: req.body.duracion
+        }).then((paramVencimiento) => {
+            res.status(201).send({success: 'Parametro de vencimiento creado exitosamente.'});
+        })
+            .catch(error => res.status(500).send({error: "Error al crear parametro de vencimiento"}));
+    },
+    putVencimiento(req, res) {
+        return models.ParamDuracion.update({
+            validezIni: new Date(req.body.validezIni.replace(/-/g, '\/')),
+            validezFin: new Date(req.body.validezFin.replace(/-/g, '\/')),
+            duracion: req.body.duracion
+        },
+            {
+                where:{
+                    id:req.params.idVencimiento
+                }
+            }).then((paramVencimiento) => {
+            res.status(201).send({success: 'Parametro de vencimiento actualizado correctamente.'});
+        })
+            .catch(error => res.status(500).send({error: "Error al actualizar parametro de vencimiento"}));
+    },
+    deleteVencimiento (req, res) {
+        return models.ParamDuracion.destroy({
+            where: {
+                id:req.params.idVencimiento
+            }
+        })
+            .then(paramDuracion => {
+                res.status(200).end();
+            })
+            .catch(
+                (error) => res.status(400).send({error:"Error al intentar eliminar vencimiento de punto"}));
+    },
+
+    //reglas
+    listaReglas(req, res) {
+        return models.Regla.findAll()
+            .then(
+                (reglas) => {
+                    res.status(200).send(reglas);
+                }
+            )
+            .catch(
+                (error) => {
+                    res.status(500).send({error:"Error al obtener lista de reglas"});
+                }
+            );
+    },
+    getRegla(req,res){
+        return models.Regla.findByPk(req.params.idRegla)
+            .then(regla=> res.status(200).send(regla))
+            .catch(error=>res.status(500).send({error:"Error al obtener regla"}))
+    },
+    nuevaRegla(req, res) {
+        return models.Regla.create({
+            limInferior: req.body.limInferior,
+            limSuperior: req.body.limSuperior,
+            equivalencia: req.body.equivalencia
+        }).then((regla) => {
+            res.status(201).send({success: 'Regla de asignacion de puntos creada exitosamente.'});
+        })
+            .catch(error => res.status(500).send({error: "Error al crear regla de asignacion de puntos"}));
+    },
+    putRegla(req, res) {
+        return models.Regla.update({
+                limInferior: req.body.limInferior,
+                limSuperior: req.body.limSuperior,
+                equivalencia: req.body.equivalencia
+            },
+            {
+                where:{
+                    id:req.params.idRegla
+                }
+            }).then((regla) => {
+            res.status(201).send({success: 'Regla de asignacion de puntos actualizada correctamente.'});
+        })
+            .catch(error => res.status(500).send({error: "Error al actualizar Regla de asignacion de puntos"}));
+    },
+    deleteRegla (req, res) {
+        return models.Regla.destroy({
+            where: {
+                id:req.params.idRegla
+            }
+        })
+            .then(regla => {
+                res.status(200).end();
+            })
+            .catch(
+                (error) => res.status(400).send({error:"Error al intentar eliminar Regla de asignacion de puntos"}));
+    }
+
+
+};
