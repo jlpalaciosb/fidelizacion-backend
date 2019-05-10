@@ -40,7 +40,7 @@ module.exports = {
         var c = 0;
         bolsas.forEach(bolsa => c += bolsa.saldo);
         if (c < req.concepto.requerido) {
-          res.status(400).send({ error: 'el cliente no tiene la cantidad requerida de puntos' });
+          res.status(200).send({ error: 'el cliente no tiene la cantidad requerida de puntos' });
         } else {
           req.bolsas = bolsas;
           next();
