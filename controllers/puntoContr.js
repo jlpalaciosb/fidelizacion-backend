@@ -15,10 +15,10 @@ module.exports = {
                 }
             );
     },
-    getVencimiento(req,res){
-      return models.ParamDuracion.findByPk(req.params.idVencimiento)
-          .then(paramDuracion=> res.status(200).send(paramDuracion))
-          .catch(error=>res.status(500).send({error:"Error al obtener vencimiento de punto"}))
+    getVencimiento(req, res) {
+        return models.ParamDuracion.findByPk(req.params.idVencimiento)
+            .then(paramDuracion => res.status(200).send(paramDuracion))
+            .catch(error => res.status(500).send({error: "Error al obtener vencimiento de punto"}))
     },
     nuevoVencimiento(req, res) {
         return models.ParamDuracion.create({
@@ -31,31 +31,55 @@ module.exports = {
             .catch(error => res.status(500).send({error: "Error al crear parametro de vencimiento"}));
     },
     putVencimiento(req, res) {
-        return models.ParamDuracion.update({
-            validezIni: new Date(req.body.validezIni.replace(/-/g, '\/')),
-            validezFin: new Date(req.body.validezFin.replace(/-/g, '\/')),
-            duracion: req.body.duracion
-        },
-            {
-                where:{
-                    id:req.params.idVencimiento
-                }
-            }).then((paramVencimiento) => {
-            res.status(201).send({success: 'Parametro de vencimiento actualizado correctamente.'});
-        })
-            .catch(error => res.status(500).send({error: "Error al actualizar parametro de vencimiento"}));
+        validezIni = req.body.validezIni;
+        validezFin = req.body.validezFin;
+        duracion = req.body.duracion;
+        cuerpo = [];
+
+        if (validezIni)
+            cuerpo.push({validezIni: new Date(req.body.validezIni.replace(/-/g, '\/'))});
+        if (validezFin)
+            cuerpo.push({validezFin: new Date(req.body.validezFin.replace(/-/g, '\/'))});
+        if (duracion) {
+            cuerpo.push({duracion: duracion});
+
+        }
+        if (cuerpo.length > 0) {
+            var promises = [];
+            cuerpo.forEach(function(campo){
+                promises.push(models.ParamDuracion.update(campo,{where : { id: req.params.idVencimiento}}));
+            });
+            Promise.all(promises).then(function(){
+                res.status(201).send({success: 'Parametro de vencimiento actualizado correctamente.'});
+            }, function(err){
+                res.status(500).send({error: "Error al actualizar parametro de vencimiento"})
+            });
+           /* return models.ParamDuracion.update(
+                cuerpo,
+                {
+                    where: {
+                        id: req.params.idVencimiento
+                    }
+                }).then((paramVencimiento) => {
+                res.status(201).send({success: 'Parametro de vencimiento actualizado correctamente.'});
+            })
+                .catch(error => res.status(500).send({error: "Error al actualizar parametro de vencimiento"}));
+
+            */
+        }
+         else return res.status(401).send({error: "No se envio ningun campo para actualizar"})
     },
-    deleteVencimiento (req, res) {
+    deleteVencimiento(req, res) {
         return models.ParamDuracion.destroy({
             where: {
-                id:req.params.idVencimiento
+                id: req.params.idVencimiento
             }
         })
             .then(paramDuracion => {
                 res.status(200).end();
             })
             .catch(
-                (error) => res.status(400).send({error:"Error al intentar eliminar vencimiento de punto"}));
+                (error) => res.status(400).send({error: "Error al intentar eliminar vencimiento de punto"}));
     },
 
     //reglas
@@ -68,14 +92,14 @@ module.exports = {
             )
             .catch(
                 (error) => {
-                    res.status(500).send({error:"Error al obtener lista de reglas"});
+                    res.status(500).send({error: "Error al obtener lista de reglas"});
                 }
             );
     },
-    getRegla(req,res){
+    getRegla(req, res) {
         return models.Regla.findByPk(req.params.idRegla)
-            .then(regla=> res.status(200).send(regla))
-            .catch(error=>res.status(500).send({error:"Error al obtener regla"}))
+            .then(regla => res.status(200).send(regla))
+            .catch(error => res.status(500).send({error: "Error al obtener regla"}))
     },
     nuevaRegla(req, res) {
         return models.Regla.create({
@@ -94,25 +118,25 @@ module.exports = {
                 equivalencia: req.body.equivalencia
             },
             {
-                where:{
-                    id:req.params.idRegla
+                where: {
+                    id: req.params.idRegla
                 }
             }).then((regla) => {
             res.status(201).send({success: 'Regla de asignacion de puntos actualizada correctamente.'});
         })
             .catch(error => res.status(500).send({error: "Error al actualizar Regla de asignacion de puntos"}));
     },
-    deleteRegla (req, res) {
+    deleteRegla(req, res) {
         return models.Regla.destroy({
             where: {
-                id:req.params.idRegla
+                id: req.params.idRegla
             }
         })
             .then(regla => {
                 res.status(200).end();
             })
             .catch(
-                (error) => res.status(400).send({error:"Error al intentar eliminar Regla de asignacion de puntos"}));
+                (error) => res.status(400).send({error: "Error al intentar eliminar Regla de asignacion de puntos"}));
     }
 
 
