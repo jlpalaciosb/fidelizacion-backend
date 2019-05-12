@@ -54,18 +54,7 @@ module.exports = {
             }, function(err){
                 res.status(500).send({error: "Error al actualizar parametro de vencimiento"})
             });
-           /* return models.ParamDuracion.update(
-                cuerpo,
-                {
-                    where: {
-                        id: req.params.idVencimiento
-                    }
-                }).then((paramVencimiento) => {
-                res.status(201).send({success: 'Parametro de vencimiento actualizado correctamente.'});
-            })
-                .catch(error => res.status(500).send({error: "Error al actualizar parametro de vencimiento"}));
 
-            */
         }
          else return res.status(401).send({error: "No se envio ningun campo para actualizar"})
     },
