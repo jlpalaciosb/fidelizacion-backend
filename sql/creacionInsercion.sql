@@ -1,5 +1,3 @@
--- script de creación de la base de datos y sus tablas
-
 drop database if exists fidelizacion_db;
 create database fidelizacion_db character set utf8;
 
@@ -16,7 +14,8 @@ CREATE TABLE `cliente` (
   `telefono` varchar(50) NOT NULL,
   `nacimiento` date NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `cliente_nro_documento_unique` (`nro_documento`)
+  UNIQUE KEY `cliente_nro_documento_unique` (`nro_documento`),
+  UNIQUE KEY `cliente_email_unique` (`email`)
 );
 
 CREATE TABLE `concepto` (
@@ -81,3 +80,28 @@ CREATE TABLE `uso_detalle` (
  CONSTRAINT `uso_detalle_bolsa_fk` FOREIGN KEY (`bolsa_id`) REFERENCES `bolsa` (`id`),
  CONSTRAINT `uso_detalle_uso_fk` FOREIGN KEY (`uso_id`) REFERENCES `uso` (`id`)
 );
+
+
+DELETE FROM cliente;
+INSERT INTO `cliente` (`nombre`, `apellido`, `nro_documento`, `tipo_documento`, `email`, `telefono`, `nacimiento`) VALUES
+  ('Rogelio', 'Fernández', '2987123', 'CI', 'rogelio@gmail.com', '0984 372 817', '1980-10-15'),
+  ('Juana Mariela', 'Zárate', '3849009', 'CI', 'juanazarate@gmail.com', '0971 673 807', '1985-01-31'),
+  ('Pablo', 'Duarte', '3567901', 'CI', 'pabolduarte@outlook.com', '0971 673 807', '1990-06-03'),
+  ('Laura', 'Torres', '2709512', 'CI', 'lauratorres@hotmail.com', '0992 123 456', '1987-11-21');
+
+DELETE FROM regla;
+INSERT INTO `regla` (`lim_inferior`, `lim_superior`, `equivalencia`) VALUES
+  (0, 300000, 10000),
+  (300000, 1000000, 9000),
+  (1000000, 10000000, 8000),
+  (10000000, 100000000, 7000);
+
+DELETE FROM concepto;
+INSERT INTO `concepto` (`descripcion`, `requerido`) VALUES
+  ('Vale de 100.000 Gs.', 150),
+  ('Vale de 250.000 Gs.', 300),
+  ('Vale de 500.000 Gs.', 500);
+
+DELETE FROM param_duracion;
+INSERT INTO param_duracion (validez_ini, validez_fin, duracion) VALUES
+  ('2000-01-01', '2029-12-31', 365);
