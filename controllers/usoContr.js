@@ -5,9 +5,32 @@ const Bolsa = require('../models').Bolsa;
 const Uso = require('../models').Uso;
 const UsoDetalle = require('../models').UsoDetalle;
 const Op = require('sequelize').Op;
+const nodeMailer = require('nodemailer');
+
+function enviarCorreo(destinatario, cantidad) {
+  let transporter = nodeMailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'fidelizacion.pwbii@gmail.com',
+      pass: 'fidelizacion'
+    }
+  });
+  let mailOptions = {
+    to: destinatario,
+    subject: 'Utilización de puntos',
+    text: `Utilizaste ${cantidad} puntos.`
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    console.log('Message %s sent: %s', info.messageId, info.response);
+  });
+}
 
 module.exports = {
-
   /* valida el cliente y el concepto y que el cliente tiene la cantidad necesaria de puntos */
   validarUsarPuntos(req, res, next) {
     const clienteId = req.body.clienteId;
@@ -81,6 +104,7 @@ module.exports = {
       bolsasUsadas.forEach(bolsa => bolsa.save({ fields: ['utilizado', 'saldo'] })); // then? bulk save?
       usoDetalles.forEach(usoDetalle => usoDetalle.save()); // then? bulk create?
       res.status(200).send({ success: 'puntos utilizados exitosamente' });
+      enviarCorreo(cliente.email, concepto.requerido);
     });
   },
 
@@ -102,8 +126,6 @@ module.exports = {
       }
     }
 
-
-
     return models.Uso.findAll({
       attributes: ['id', 'utilizado', 'fecha'],
       include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Concepto, as: 'concepto' }],
@@ -115,5 +137,4 @@ module.exports = {
         res.status(500).send('error del servidor');
       });
   },
-
 };
