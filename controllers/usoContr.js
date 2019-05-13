@@ -133,27 +133,21 @@ module.exports = {
   },
 
   getUso(req, res) {
-    let where = {
+    var campos = [];
+    if (req.query.idCliente)
+      campos.push({ cliente_id: req.query.idCliente });
+    if (req.query.idConcepto)
+      campos.push({ concepto_id: req.query.idConcepto });
+    if (req.query.fechaInicio && req.query.fechaFin) {
+      campos.push({ fecha: { [models.Sequelize.Op.gte]: req.query.fechaInicio } });
+      campos.push({ fecha: { [models.Sequelize.Op.lte]: req.query.fechaFin } });
 
-    };
-    if (req.query.idCliente) {
-      where = { cliente_id: req.query.idCliente }
-    } else {
-      if (req.query.idConcepto) {
-        where = { concepto_id: req.query.idConcepto }
-      } else {
-        if (req.query.fechaInicio && req.query.fechaFin) {
-          where = {
-            [models.Sequelize.Op.and]: [{ fecha: { [models.Sequelize.Op.gte]: req.query.fechaInicio } }, { fecha: { [models.Sequelize.Op.lte]: req.query.fechaFin } }]
-          }
-        }
-      }
     }
 
     return models.Uso.findAll({
       attributes: ['id', 'utilizado', 'fecha'],
       include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Concepto, as: 'concepto' }],
-      where: where
+      where: { [models.Sequelize.Op.and]: campos }
     })
       .then(usos => res.status(200).send(usos))
       .catch(error => {
