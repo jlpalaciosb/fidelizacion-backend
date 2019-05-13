@@ -5,9 +5,33 @@ const Bolsa = require('../models').Bolsa;
 const Uso = require('../models').Uso;
 const UsoDetalle = require('../models').UsoDetalle;
 const Op = require('sequelize').Op;
+const nodeMailer = require('nodemailer');
+const sequelize = require('../models').sequelize;
+
+function enviarCorreo(destinatario, cantidad) {
+  let transporter = nodeMailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'fidelizacion.pwbii@gmail.com',
+      pass: 'fidelizacion'
+    }
+  });
+  let mailOptions = {
+    to: destinatario,
+    subject: 'Utilización de puntos',
+    text: `Utilizaste ${cantidad} puntos.`
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    console.log('Message %s sent: %s', info.messageId, info.response);
+  });
+}
 
 module.exports = {
-
   /* valida el cliente y el concepto y que el cliente tiene la cantidad necesaria de puntos */
   validarUsarPuntos(req, res, next) {
     const clienteId = req.body.clienteId;
@@ -37,7 +61,7 @@ module.exports = {
           });
         }
       }).then((bolsas) => {
-        var c = 0;
+        let c = 0;
         bolsas.forEach(bolsa => c += bolsa.saldo);
         if (c < req.concepto.requerido) {
           res.status(200).send({ error: 'el cliente no tiene la cantidad requerida de puntos' });
@@ -51,41 +75,65 @@ module.exports = {
 
   /* usa los puntos (una vez validado) */
   usarPuntos(req, res) {
-    const cliente = req.cliente;
-    const concepto = req.concepto;
-    const bolsas = req.bolsas;
-    Uso.create({
-      utilizado: concepto.requerido,
-      fecha: new Date(),
-      cliente_id: cliente.id,
-      concepto_id: concepto.id,
-    }).then((uso) => {
-      const usoDetalles = [];
-      const bolsasUsadas = [];
-      var utilizar = concepto.requerido;
-      var bindex = 0;
-      while (utilizar > 0) {
-        var bolsa = bolsas[bindex];
-        var usar = Math.min(utilizar, bolsa.saldo);
-        usoDetalles.push(UsoDetalle.build({
-          uso_id: uso.id,
-          bolsa_id: bolsa.id,
-          utilizado: usar,
-        }));
-        bolsa.utilizado += usar;
-        bolsa.saldo -= usar;
-        utilizar -= usar;
-        bindex += 1;
-        bolsasUsadas.push(bolsa);
-      }
-      bolsasUsadas.forEach(bolsa => bolsa.save({ fields: ['utilizado', 'saldo'] })); // then? bulk save?
-      usoDetalles.forEach(usoDetalle => usoDetalle.save()); // then? bulk create?
-      res.status(200).send({ success: 'puntos utilizados exitosamente' });
+    sequelize.transaction(t => {
+
+      return Uso.create(
+        {
+          utilizado: req.concepto.requerido,
+          fecha: new Date(),
+          cliente_id: req.cliente.id,
+          concepto_id: req.concepto.id,
+        }, {transaction: t}
+      ).then((uso) => {
+        req.usoDetalles = [];
+        req.bolsasUsadas = [];
+        let utilizar = req.concepto.requerido;
+        let bindex = 0;
+
+        while(utilizar > 0) {
+          let bolsa = req.bolsas[bindex];
+          let usar = Math.min(utilizar, bolsa.saldo);
+          req.usoDetalles.push(UsoDetalle.build({
+            uso_id: uso.id,
+            bolsa_id: bolsa.id,
+            utilizado: usar,
+          }));
+          bolsa.utilizado += usar;
+          bolsa.saldo -= usar;
+          utilizar -= usar;
+          bindex += 1;
+          req.bolsasUsadas.push(bolsa);
+        }
+
+        promesas = [];
+
+        req.bolsasUsadas.forEach(bolsa => {
+          promesas.push(
+            bolsa.save({
+              fields: ['utilizado', 'saldo'],
+              transaction: t,
+            })
+          );
+        });
+
+        req.usoDetalles.forEach(usoDetalle => {
+          promesas.push(
+            usoDetalle.save({transaction: t})
+          );
+        });
+
+        return Promise.all(promesas);
+      });
+    }).then(result => {
+      res.status(200).send({success: 'puntos utilizados exitosamente'});
+      enviarCorreo(req.cliente.email, req.concepto.requerido);
+    }).catch(error => {
+      console.log(error);
     });
   },
 
   getUso(req, res) {
-    var where = {
+    let where = {
 
     };
     if (req.query.idCliente) {
@@ -102,8 +150,6 @@ module.exports = {
       }
     }
 
-
-
     return models.Uso.findAll({
       attributes: ['id', 'utilizado', 'fecha'],
       include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Concepto, as: 'concepto' }],
@@ -115,5 +161,4 @@ module.exports = {
         res.status(500).send('error del servidor');
       });
   },
-
 };
