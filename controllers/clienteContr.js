@@ -8,17 +8,14 @@ const sequelize = require('../models').sequelize;
 module.exports = {
 
   list(req, res) {
-    Cliente.findAll()
-      .then(
-        (clientes) => {
-          res.status(200).send(clientes);
-        }
-      )
-      .catch(
-        (error) => {
-          res.status(400).send(error);
-        }
-      );
+    Cliente.findAll({
+      order: [['apellido', 'ASC'], ['nombre', 'ASC']],
+    }).then((clientes) => {
+      res.status(200).send(clientes);
+    }).catch((error) => {
+      console.log(error);
+      res.status(500).send();
+    });
   },
 
   //servicio 8.a
