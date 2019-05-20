@@ -35,21 +35,28 @@ module.exports = {
     }
     
     where.fechaCaducidad = {};
-    var flag = false; // indica si hay que aplicar filtros a la fecha de caducidad
+    var flag = false; // indica si hay que aplicar filtros para la fecha de caducidad
 
-    if(req.bolsa.venceEn !== undefined) { flag = true;
-      /* req.bolsa.venceEn -> tipo : int , unidad de medida : días */
+    if(req.bolsa.venceEn !== undefined) {
+      flag = true;
       const dt1 = new Date(); const dt2 = new Date();
       dt1.setTime(dt1.getTime() + (req.bolsa.venceEn - 1) * 24 * 60 * 60 * 1000); // instante1 = ahora + x dias (un dia = 24 horas)
       dt2.setTime(dt2.getTime() + (req.bolsa.venceEn + 1) * 24 * 60 * 60 * 1000); // instante2 = ahora + (x + 1) dias
       Object.assign(where.fechaCaducidad, {[Op.gte]: dt1, [Op.lte]: dt2});
     }
 
-    if(req.bolsa.estado !== undefined) { flag = true;
+    if(req.bolsa.estado !== undefined) {
       if(req.bolsa.estado === 'vigente') {
+        flag = true;
         Object.assign(where.fechaCaducidad, {[Op.gt]: new Date()});
+        where.saldo = {[Op.gt]: 0};
       } else { // vencido
-        Object.assign(where.fechaCaducidad, {[Op.lt]: new Date()});
+        Object.assign(where, {
+          [Op.or]: {
+            fechaCaducidad: {[Op.lt]: new Date()},
+            saldo: 0
+          }
+        });
       }
     }
     
