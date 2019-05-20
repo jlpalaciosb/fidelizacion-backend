@@ -61,10 +61,15 @@ module.exports = {
           });
         }
       }).then((bolsas) => {
-        let c = 0;
-        bolsas.forEach(bolsa => c += bolsa.saldo);
-        if (c < req.concepto.requerido) {
-          res.status(200).send({ error: 'el cliente no tiene la cantidad requerida de puntos' });
+        let saldoTotal = 0;
+        bolsas.forEach(bolsa => saldoTotal += bolsa.saldo);
+        if (saldoTotal < req.concepto.requerido) {
+          res.status(200).send({
+            resultado: 1,
+            mensaje: 'El cliente no tiene la cantidad requerida de puntos.',
+            saldoTotal: saldoTotal,
+            requerido: req.concepto.requerido,
+          });
         } else {
           req.bolsas = bolsas;
           next();
@@ -125,7 +130,10 @@ module.exports = {
         return Promise.all(promesas);
       });
     }).then(result => {
-      res.status(200).send({success: 'puntos utilizados exitosamente'});
+      res.status(200).send({
+        resultado: 0,
+        mensaje: 'Puntos utilizados exitosamente.',
+      });
       enviarCorreo(req.cliente.email, req.concepto.requerido);
     }).catch(error => {
       console.log(error);
