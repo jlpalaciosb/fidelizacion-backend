@@ -65,7 +65,7 @@ router.post('/usarPuntos',
 //3. administracion de reglas
 router.post('/puntos/reglas',
   (req, res, next) => { console.log('POST regla de puntos'); next(); },
-  puntoController.nuevaRegla
+    puntoController.validarReglaPost,puntoController.nuevaRegla
 );
 router.get('/puntos/reglas',
   (req, res, next) => { console.log('GET lista de reglas de asignacion de puntos'); next(); },
@@ -75,7 +75,7 @@ router.get('/puntos/reglas/:idRegla(\\d+)',
   puntoController.getRegla);
 router.put('/puntos/reglas/:idRegla(\\d+)',
   (req, res, next) => { console.log('PUT regla'); next(); },
-  puntoController.putRegla);
+    puntoController.validarPut,puntoController.validarReglaPost,puntoController.putRegla);
 router.delete('/puntos/reglas/:idRegla(\\d+)',
   (req, res, next) => { console.log('DELETE regla'); next(); },
   puntoController.deleteRegla);

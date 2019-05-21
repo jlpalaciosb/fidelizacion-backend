@@ -1,4 +1,5 @@
 const models = require('../models');
+const Op = require('sequelize').Op;
 
 
 module.exports = {
@@ -89,6 +90,41 @@ module.exports = {
     return models.Regla.findByPk(req.params.idRegla)
       .then(regla => res.status(200).send(regla))
       .catch(error => res.status(500).send({ error: "Error al obtener regla" }))
+  },
+  validarPut(req, res, next) {
+    models.Regla.findByPk(req.params.idRegla).then(regla => {
+      req.put = true;
+      if(req.body.limInferior === undefined) req.body.limInferior = regla.limInferior;
+      if(req.body.limSuperior === undefined) req.body.limSuperior = regla.limSuperior;
+      next();
+    }).catch(reason => res.status(404).send());
+  },
+  validarReglaPost(req,res,next){
+    if(req.body.limInferior >= req.body.limSuperior) {
+      res.status(200).send({error: 'Rango invalido'});
+    } else {
+      var where = {};
+      if(req.put) {
+        where.id = {[Op.ne]: req.params.idRegla};
+      }
+      where.limInferior = {[Op.lt]: req.body.limSuperior};
+      where.limSuperior = {[Op.gt]: req.body.limInferior};
+      models.Regla.findAll(
+          {
+            where: where
+          }
+      )
+          .then(reglas => {
+            if (reglas.length > 0)
+              res.status(200).send({error: 'Existe regla que se solapa con el rango especificado'});
+            else
+              next()
+          })
+          .catch(error => {
+            console.log(error);
+            res.status(500).send('error del servidor');
+          });
+    }
   },
   nuevaRegla(req, res) {
     return models.Regla.create({
