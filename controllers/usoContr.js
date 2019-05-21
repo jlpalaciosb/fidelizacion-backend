@@ -154,7 +154,7 @@ module.exports = {
 
     return models.Uso.findAll({
       attributes: ['id', 'utilizado', 'fecha'],
-      include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Concepto, as: 'concepto' }],
+      include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Concepto, as: 'concepto' },{ model: models.UsoDetalle, as: 'detalles' }],
       where: { [models.Sequelize.Op.and]: campos }
     })
       .then(usos => res.status(200).send(usos))
