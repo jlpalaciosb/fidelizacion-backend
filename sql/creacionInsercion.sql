@@ -92,9 +92,7 @@ INSERT INTO `cliente` (`nombre`, `apellido`, `nro_documento`, `tipo_documento`, 
 DELETE FROM regla;
 INSERT INTO `regla` (`lim_inferior`, `lim_superior`, `equivalencia`) VALUES
   (0, 300000, 10000),
-  (300000, 1000000, 9000),
-  (1000000, 10000000, 8000),
-  (10000000, 100000000, 7000);
+  (300000, 1000000, 9000);
 
 DELETE FROM concepto;
 INSERT INTO `concepto` (`descripcion`, `requerido`) VALUES
