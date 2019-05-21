@@ -69,7 +69,7 @@ module.exports = {
     return Regla.findAll(
       {
         where: {
-          [Op.and]: [{ limInferior: { [Op.lte]: req.params.monto } }, { limSuperior: { [Op.gte]: req.params.monto } }]
+          [Op.and]: [{ limInferior: { [Op.lte]: req.params.monto } }, { limSuperior: { [Op.gt]: req.params.monto } }]
         }
       }
     )
