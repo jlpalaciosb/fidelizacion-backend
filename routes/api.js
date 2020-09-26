@@ -1,9 +1,9 @@
 const express = require('express');
-const bolsaController = require('../controllers').bolsaController;
-const clienteController = require('../controllers').clienteController;
-const premioController = require('../controllers').premioController;
-const reglaController = require('../controllers').reglaController;
-const usoController = require('../controllers').usoController;
+const bolsaController = require('../controllers').BolsaController;
+const clienteController = require('../controllers').ClienteController;
+const premioController = require('../controllers').PremioController;
+const reglaController = require('../controllers').ReglaController;
+const usoController = require('../controllers').UsoController;
 
 const router = express.Router();
 
