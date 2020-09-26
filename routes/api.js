@@ -19,6 +19,8 @@ router.use((req, res, next) => {
 
 // Autenticar con JWT
 router.use((req, res, next) => {
+  // next(); return; // desabilitar JWT, commentar esta línea para habilitar
+
   if (req.originalUrl === '/api/token') { next(); return; }
 
   let publicKey = Buffer.from(process.env.JWT_PUBLIC_KEY, 'base64');

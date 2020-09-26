@@ -9,6 +9,4 @@
 -* regla por defecto
 -* duracion de los puntos (en archivo)
 -* diagrama de la base de datos
-- para que haya valido la pena, hacer un documento o resumen de la api
-
-obs: priorizar lo que me va a servir más.
+- documentar la api

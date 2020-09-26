@@ -1,3 +1,5 @@
+-- MySQL 5.7
+
 drop database if exists fidelizacion_db;
 create database fidelizacion_db character set utf8;
 
@@ -6,7 +8,7 @@ use fidelizacion_db;
 CREATE TABLE `usuario` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
  `nombre_de_usuario` varchar(30) NOT NULL,
- `contrasenha_hash` varchar(60) NOT NULL COMMENT 'hash generado con bcrypt 3.0.6 (npm)',
+ `contrasenha_hash` varchar(60) NOT NULL COMMENT 'hash generado con bcrypt 3.0.6 (nodejs)',
  PRIMARY KEY (`id`),
  UNIQUE KEY `nombre_de_usuario` (`nombre_de_usuario`)
 );
@@ -98,3 +100,7 @@ INSERT INTO `premio` (`descripcion`, `requerido`) VALUES
   ('Vale de 100.000 Gs.', 150),
   ('Vale de 250.000 Gs.', 300),
   ('Vale de 500.000 Gs.', 500);
+
+DELETE FROM usuario;
+INSERT INTO `usuario` (`nombre_de_usuario`, `contrasenha_hash`) VALUES
+  ('admin', '$2b$08$GIXo6cPf7kHCHxrpq6nK0el15Vljgq7CgvLaY/wO.vvLLMMvaAgAu'); -- la contraseña es 12345
