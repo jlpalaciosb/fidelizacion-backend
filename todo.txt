@@ -1,12 +1,13 @@
-- eliminar vistas (los que estan en views)
-- controlar log de errores (por ejemplo retorna al consumidor un html con el stacktrace)
+-* eliminar vistas (los que estan en views)
+-* controlar log de errores (por ejemplo retorna al consumidor un html con el stacktrace)
 - entorno de desarrollo, test y produccion
-- autenticación y autorización
-- corregir unresolved variables en webstorm
+-* autenticación y autorización
+-* corregir unresolved variables en webstorm
 -* corregir errores en la api (validacion) (uso correcto de las promesas de js)
 -* responder resultado, mensaje
 - tests, con postman si se puede (para no perder tiempo)
-- regla por defecto, duracion de los puntos (en archivo)
+-* regla por defecto
+-* duracion de los puntos (en archivo)
 -* diagrama de la base de datos
 - para que haya valido la pena, hacer un documento o resumen de la api
 

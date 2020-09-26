@@ -22,7 +22,8 @@ router.use((req, res, next) => {
   if (req.originalUrl === '/api/token') { next(); return; }
 
   let publicKey = Buffer.from(process.env.JWT_PUBLIC_KEY, 'base64');
-  let token = req.headers.authorization.split(' ')[1];
+  let token;
+  if (req.headers.authorization) token = req.headers.authorization.split(' ')[1];
   jwt.verify(
     token, publicKey, { algorithm: ["RS256"] },
     (err, payload) => {

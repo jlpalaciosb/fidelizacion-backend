@@ -32,15 +32,24 @@ router.post('/',
 
   // ejecutar la petición
   (req, res) => {
-    Regla.findAll({
+    Regla.findOne({
       where: {
         limInferior: { [Op.lte]: req.body.monto },
         limSuperior: { [Op.gt]: req.body.monto },
       }
-    }).then(reglas => {
-      let puntosCalculados = Math.floor(req.body.monto / reglas[0].equivalencia);
+    }).then(regla => {
+      let equivalencia;
+      if (regla !== null) {
+        equivalencia = regla.equivalencia;
+      } else {
+        equivalencia = parseInt(process.env.EQUIVALENCIA_DEFAULT);
+        if (Number.isNaN(equivalencia)) equivalencia = 10000; // más default otra vez
+      }
+      let puntosCalculados = Math.floor(req.body.monto / equivalencia);
       let fechaVencimiento = new Date();
-      fechaVencimiento.setDate((new Date()).getDate() + 365); // 365 debe ser cambiable
+      let duracion = parseInt(process.env.DURACION_PUNTOS);
+      if (Number.isNaN(duracion)) duracion = 365; // duración por defecto
+      fechaVencimiento.setDate((new Date()).getDate() + duracion); // 365 debe ser cambiable
       // Asignar puntaje segun reglas
       return Bolsa.create({
         cliente_id: req.body.clienteId,
