@@ -1,10 +1,11 @@
 const express = require('express');
-const router = express.router();
+const router = express.Router();
 const models = require('../models');
 const Regla = models.Regla;
+const Op = require('sequelize').Op;
 
-router.get(
-  '',
+
+router.get('/',
   (req, res, next) => {
     console.log('GET lista de reglas de asignacion de puntos');
     next();
@@ -24,8 +25,8 @@ router.get(
   },
 );
 
-router.get(
-  '(:idRegla)\\d+',
+
+router.get('/:idRegla(\\d+)',
   (req, res, next) => {
     console.log('GET regla por idRegla');
     next();
@@ -36,6 +37,7 @@ router.get(
       .catch(error => res.status(500).send({ error: "Error al obtener regla" }))
   },
 );
+
 
 function validarPost(req, res, next) {
   if(req.body.limInferior >= req.body.limSuperior) {
@@ -65,8 +67,8 @@ function validarPost(req, res, next) {
   }
 }
 
-router.put(
-  '(:idRegla)\\d+',
+
+router.put('/:idRegla(\\d+)',
   (req, res, next) => {
     console.log('PUT regla');
     next();
@@ -98,8 +100,8 @@ router.put(
   },
 );
 
-router.post(
-  '',
+
+router.post('/',
   (req, res, next) => {
     console.log('POST regla de puntos');
     next();
@@ -117,8 +119,8 @@ router.post(
   },
 );
 
-router.delete(
-  '(:idRegla)\\d+',
+
+router.delete('/:idRegla(\\d+)',
   (req, res, next) => {
     console.log('DELETE regla');
     next();
@@ -137,9 +139,9 @@ router.delete(
   },
 );
 
+
 //consultar puntos desde monto
-router.get(
-  'equivalencia/:monto(\\d+)',
+router.get('/equivalencia/:monto(\\d+)',
   (req, res, next) => {
     console.log(`Retornar equivalencia de puntos`); 
     next();
@@ -163,5 +165,6 @@ router.get(
       });
   }
 );
+
 
 module.exports = router;

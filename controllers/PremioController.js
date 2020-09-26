@@ -1,8 +1,15 @@
-const Concepto = require('../models').Concepto;
+const express = require('express');
+const router = express.Router();
+const Premio = require('../models').Premio;
 
-module.exports = {
-  /* validacion de los argumentos recibidos para crear un nuevo concepto */
-  validarPost(req, res, next) {
+
+router.post('/',
+  (req, res, next) => {
+    console.log(`Crear un premio`);
+    next();
+  },
+  /* validacion de los argumentos recibidos para crear un nuevo premio */
+  (req, res, next) => {
     const descripcion = req.body.descripcion;
     const requerido = req.body.requerido;
     if(typeof(descripcion) !== 'string' || descripcion.trim() === '') {
@@ -15,41 +22,61 @@ module.exports = {
       next();
     }
   },
-
-  /* crear el nuevo concepto (ya validado) en la base de datos */
-  post(req, res) {
-    Concepto.create({
+  /* crear el nuevo premio (ya validado) en la base de datos */
+  (req, res) => {
+    Premio.create({
       descripcion: req.body.descripcion,
       requerido: req.body.requerido,
-    }).then(concepto => {
-      res.status(201).send(concepto);
+    }).then(premio => {
+      res.status(201).send(premio);
     }).catch((error) => {
       if(error.name === 'SequelizeUniqueConstraintError') {
-        res.status(400).send({error: 'ya existe otro concepto con la misma descripción'});
+        res.status(400).send({error: 'ya existe otro premio con la misma descripción'});
       } else {
         console.log(error);
       }
     });
   },
+);
 
-  /* listar todos los conceptos */
-  list(req, res) {
-    Concepto.findAll().then(conceptos => res.status(200).send(conceptos));
+
+router.get('/',
+  (req, res, next) => {
+    console.log(`Listar todos los premios`);
+    next();
   },
+  /* listar todos los premios */
+  (req, res) => {
+    Premio.findAll().then(premios => res.status(200).send(premios));
+  },
+);
 
-  /* retornar un concepto en específico */
-  get(req, res) {
-    Concepto.findByPk(req.params.id).then(concepto => {
-      if(concepto !== null) {
-        res.status(200).send(concepto);
+
+router.get('/:id(\\d+)',
+  (req, res, next) => {
+    console.log(`Obtener premio con id igual a ${req.params.id}`);
+    next();
+  },
+  /* retornar un premio en específico */
+  (req, res) => {
+    Premio.findByPk(req.params.id).then(premio => {
+      if(premio !== null) {
+        res.status(200).send(premio);
       } else {
         res.status(404).send();
       }
     });
   },
+);
 
-  /* validacion de los argumentos recibidos para actualizar un nuevo concepto */
-  validarUpdate(req, res, next) {
+
+router.put('/:id(\\d+)',
+  (req, res, next) => {
+    console.log(`Actualizar premio con id igual a ${req.params.id}`);
+    next();
+  },
+  /* validacion de los argumentos recibidos para actualizar un nuevo premio */
+  (req, res, next) => {
     const descripcion = req.body.descripcion;
     const requerido = req.body.requerido;
     if(descripcion !== undefined && typeof(descripcion) !== 'string') {
@@ -66,21 +93,20 @@ module.exports = {
       next();
     }
   },
-
-  /* actualiza un concepto (ya validado) */
-  update(req, res) {
-    Concepto.findByPk(req.params.id).then(concepto => {
-      if(concepto === null) {
+  /* actualiza un premio (ya validado) */
+  (req, res) => {
+    Premio.findByPk(req.params.id).then(premio => {
+      if(premio === null) {
         res.status(404).send();
       } else {
-        concepto.update({
+        premio.update({
           descripcion: req.body.descripcion,
           requerido: req.body.requerido,
         }).then(() => {
-          res.status(200).send({success: 'concepto actualizado'});
+          res.status(200).send({success: 'premio actualizado'});
         }).catch((error) => {
           if(error.name === 'SequelizeUniqueConstraintError') {
-            res.status(400).send({error: 'ya existe otro concepto con la misma descripción'});
+            res.status(400).send({error: 'ya existe otro premio con la misma descripción'});
           } else {
             console.log(error);
           }
@@ -88,23 +114,37 @@ module.exports = {
       }
     });
   },
+);
 
-  /* elimina un concepto en específico */
-  delete(req, res) {
-    Concepto.findByPk(req.params.id).then(concepto => {
-      if(concepto === null) {
+
+router.delete('/:id(\\d+)',
+  (req, res, next) => {
+    console.log(`Eliminar premio con id igual a ${req.params.id}`);
+    next();
+  },
+
+  /* elimina un premio en específico */
+  (req, res) => {
+    Premio.findByPk(req.params.id).then(premio => {
+      if(premio === null) {
         res.status(404).send();
+        return Promise.reject(new Error('404'));
       } else {
-        return concepto.destroy();
+        return premio.destroy();
       }
     }).then(() => {
-      res.status(200).send({success: `concepto eliminado`});
+      res.status(200).send({success: `premio eliminado`});
     }).catch((error) => {
       if(error.name === 'SequelizeForeignKeyConstraintError') {
-        res.status(400).send({error: 'no se puede eliminar el concepto porque es referenciado por un uso'});
+        res.status(400).send({error: 'no se puede eliminar el premio porque es referenciado por un uso'});
+      } else if(error.message === '404') {
+        // do nothing
       } else {
         console.log(error);
       }
     });
-  }
-};
+  },
+);
+
+
+module.exports = router;

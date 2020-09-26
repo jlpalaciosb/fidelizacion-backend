@@ -18,12 +18,12 @@ CREATE TABLE `cliente` (
   UNIQUE KEY `cliente_email_unique` (`email`)
 );
 
-CREATE TABLE `concepto` (
+CREATE TABLE `premio` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
  `descripcion` varchar(100) NOT NULL,
  `requerido` int(10) unsigned NOT NULL COMMENT 'cantidad requerida de puntos',
  PRIMARY KEY (`id`),
- UNIQUE KEY `concepto_descripcion_unique` (`descripcion`)
+ UNIQUE KEY `premio_descripcion_unique` (`descripcion`)
 );
 
 CREATE TABLE `regla` (
@@ -33,14 +33,6 @@ CREATE TABLE `regla` (
  `equivalencia` int(10) unsigned NOT NULL COMMENT 'monto de equivalencia de un punto',
  PRIMARY KEY (`id`)
 );
-
-CREATE TABLE `param_duracion` (
- `id` int(11) NOT NULL AUTO_INCREMENT,
- `validez_ini` timestamp NOT NULL DEFAULT '2000-01-01 00:00:00' COMMENT 'fecha de inicio de validez de esta regla',
- `validez_fin` timestamp NOT NULL DEFAULT '2030-12-31 00:00:00' COMMENT 'fecha de fin de validez de esta regla',
- `duracion` int(10) unsigned NOT NULL COMMENT 'duración en días',
- PRIMARY KEY (`id`)
-) COMMENT='permite definir la duración de los puntajes';
 
 CREATE TABLE `bolsa` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -61,12 +53,12 @@ CREATE TABLE `uso` (
  `cliente_id` int(11) NOT NULL,
  `utilizado` int(11) unsigned NOT NULL COMMENT 'cantidad de puntos utilizados',
  `fecha` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'fecha y hora de utilización',
- `concepto_id` int(11) NOT NULL,
+ `premio_id` int(11) NOT NULL,
  PRIMARY KEY (`id`),
  KEY `uso_cliente_fk` (`cliente_id`),
- KEY `uso_concepto_fk` (`concepto_id`),
+ KEY `uso_premio_fk` (`premio_id`),
  CONSTRAINT `uso_cliente_fk` FOREIGN KEY (`cliente_id`) REFERENCES `cliente` (`id`),
- CONSTRAINT `uso_concepto_fk` FOREIGN KEY (`concepto_id`) REFERENCES `concepto` (`id`)
+ CONSTRAINT `uso_premio_fk` FOREIGN KEY (`premio_id`) REFERENCES `premio` (`id`)
 );
 
 CREATE TABLE `uso_detalle` (
@@ -81,7 +73,6 @@ CREATE TABLE `uso_detalle` (
  CONSTRAINT `uso_detalle_uso_fk` FOREIGN KEY (`uso_id`) REFERENCES `uso` (`id`)
 );
 
-
 DELETE FROM cliente;
 INSERT INTO `cliente` (`nombre`, `apellido`, `nro_documento`, `tipo_documento`, `email`, `telefono`, `nacimiento`) VALUES
   ('Rogelio', 'Fernández', '2987123', 'CI', 'rogelio@gmail.com', '0984 372 817', '1980-10-15'),
@@ -94,12 +85,8 @@ INSERT INTO `regla` (`lim_inferior`, `lim_superior`, `equivalencia`) VALUES
   (0, 300000, 10000),
   (300000, 1000000, 9000);
 
-DELETE FROM concepto;
-INSERT INTO `concepto` (`descripcion`, `requerido`) VALUES
+DELETE FROM premio;
+INSERT INTO `premio` (`descripcion`, `requerido`) VALUES
   ('Vale de 100.000 Gs.', 150),
   ('Vale de 250.000 Gs.', 300),
   ('Vale de 500.000 Gs.', 500);
-
-DELETE FROM param_duracion;
-INSERT INTO param_duracion (validez_ini, validez_fin, duracion) VALUES
-  ('2000-01-01', '2029-12-31', 365);

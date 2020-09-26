@@ -1,9 +1,9 @@
 const express = require('express');
-const router = express.router();
+const router = express.Router();
 const Cliente = require('../models').Cliente;
 
-router.get(
-  '',
+
+router.get('/',
   (req, res, next) => {
     console.log('retornar lista de todos los clientes');
     next();
@@ -19,5 +19,6 @@ router.get(
     });
   },
 );
+
 
 module.exports = router;

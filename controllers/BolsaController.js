@@ -1,10 +1,14 @@
-const express = require('express');
-const router = express.router();
-const models = require('../models');
+//const express = require('express');
+let express = require('express');
+const router = express.Router();
+const Regla = require('../models').Regla;
+const ParamDuracion = require('../models').ParamDuracion;
+const Bolsa = require('../models').Bolsa;
+const Op = require('sequelize').Op;
+
 
 // asignar puntos (se genera una Bolsa)
-router.post(
-  '',
+router.post('/',
   (req, res, next) => {
     console.log(`Generar una bolsa`); 
     next();
@@ -56,8 +60,8 @@ router.post(
   },
 );
 
-router.get(
-  '',
+
+router.get('/',
   (req, res, next) => {
     console.log(`Listar bolsas (para reporte)`);
     next();

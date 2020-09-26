@@ -1,12 +1,12 @@
-clienteController = require('./clienteContr');
-bolsaController = require('./bolsaContr');
-conceptoController = require('./conceptoContr');
-usoController = require('./usoContr');
-puntoController= require('./puntoContr');
+bolsaController = require('./BolsaController');
+clienteController = require('./ClienteController');
+premioController = require('./PremioController');
+reglaController = require('./ReglaController');
+usoController = require('./UsoController');
 module.exports = {
-  clienteController,
   bolsaController,
-  conceptoController,
+  clienteController,
+  premioController,
+  reglaController,
   usoController,
-  puntoController
 };
