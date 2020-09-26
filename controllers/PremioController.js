@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Premio = require('../models').Premio;
+const responder = require('./util').responder;
 
 
 router.post('/',
@@ -15,9 +16,9 @@ router.post('/',
     const descripcion = req.body.descripcion;
     const requerido = req.body.requerido;
     if(typeof(descripcion) !== 'string' || descripcion.trim() === '') {
-      res.status(400).send({error: 'especifique (correctamente) la descripción'});
+      responder(res.status(400), 1, 'especifique correctamente la descripción');
     } else if(typeof(requerido) !== 'number' || !Number.isInteger(requerido) || requerido <= 0) {
-      res.status(400).send({error: 'especifique (correctamente) la cantidad requerida de puntos'});
+      responder(res.status(400), 1, 'especifique correctamente la cantidad requerida de puntos');
     } else {
       req.body.descripcion = descripcion.trim();
       next();
@@ -33,7 +34,7 @@ router.post('/',
       res.status(201).send(premio);
     }).catch((reason) => {
       if(reason.name === 'SequelizeUniqueConstraintError') {
-        res.status(400).send({error: 'ya existe otro premio con la misma descripción'});
+        responder(res.status(400), 1, 'ya existe otro premio con la misma descripción');
       } else {
         res.status(500).send();
         console.log(reason);
@@ -98,10 +99,10 @@ router.put('/:id(\\d+)',
     const requerido = req.body.requerido;
     if(descripcion !== undefined &&
         (typeof(descripcion) !== 'string' || descripcion.trim() === '')) {
-      res.status(400).send({error: 'especifique la descripcion correctamente'});
+      responder(res.status(400), 1, 'especifique la descripcion correctamente');
     } else if(requerido !== undefined &&
         (typeof(requerido) !== 'number' || !Number.isInteger(requerido) || requerido <= 0)) {
-      res.status(400).send({error: 'especifique correctamente la cantidad requerida de puntos'});
+      responder(res.status(400), 1, 'especifique correctamente la cantidad requerida de puntos');
     } else {
       if(descripcion !== undefined) req.body.descripcion = descripcion.trim();
       next();
@@ -120,12 +121,12 @@ router.put('/:id(\\d+)',
         });
       }
     }).then(() => {
-      res.status(200).send({success: 'premio actualizado'});
+      responder(res.status(200), 0, 'premio actualizado');
     }).catch((reason) => {
       if(reason.message === '404') {
         res.status(404).send();
       } else if(reason.name === 'SequelizeUniqueConstraintError') {
-        res.status(400).send({error: 'ya existe otro premio con la misma descripción'});
+        responder(res.status(400), 1, 'ya existe otro premio con la misma descripción');
       } else {
         res.status(500).send();
         console.log(error);
@@ -151,10 +152,10 @@ router.delete('/:id(\\d+)',
         return premio.destroy();
       }
     }).then(() => {
-      res.status(200).send({success: 'premio eliminado'});
+      responder(res.status(200), 0, 'premio eliminado');
     }).catch((reason) => {
       if(reason.name === 'SequelizeForeignKeyConstraintError') {
-        res.status(400).send({error: 'no se puede eliminar el premio porque es referenciado por un uso'});
+        responder(res.status(400), 1, 'no se puede eliminar el premio porque es referenciado por un uso');
       } else if(reason.message === '404') {
         res.status(404).send();
       } else {

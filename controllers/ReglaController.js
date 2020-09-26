@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Regla = require('../models').Regla;
 const Op = require('sequelize').Op;
+const responder = require('./util').responder;
 
 
 function validarRegla(req, res, next) {
@@ -9,19 +10,19 @@ function validarRegla(req, res, next) {
   let limSuperior = req.body.limSuperior;
   let equivalencia = req.body.equivalencia;
   if(typeof(limInferior) !== 'number' || !Number.isInteger(limInferior) || limInferior < 0) {
-    res.status(400).send({error: 'especifique correctamente el límite inferior'});
+    responder(res.status(400), 1, 'especifique correctamente el límite inferior');
   } else if(typeof(limSuperior) !== 'number' || !Number.isInteger(limSuperior) ||
     limSuperior <= limInferior) {
-    res.status(400).send({error: 'especifique correctamente el límite superior'});
+    responder(res.status(400), 1, 'especifique correctamente el límite superior');
   } else if(typeof(equivalencia) !== 'number' || !Number.isInteger(equivalencia) || equivalencia <= 0) {
-    res.status(400).send({error: 'especifique correctamente la equivalencia'});
+    responder(res.status(400), 1, 'especifique correctamente la equivalencia');
   } else { // CONTROLAR SOLAPAMIENTO
     let where = {};
     if(req.put) where.id = {[Op.ne]: req.params.id};
     where.limInferior = {[Op.lt]: req.body.limSuperior};
     where.limSuperior = {[Op.gt]: req.body.limInferior};
     Regla.findAll({where: where}).then(reglas => {
-      if(reglas.length > 0) res.status(400).send({error: 'rango solapado'});
+      if(reglas.length > 0) responder(res.status(400), 1, 'rango solapado');
       else next()
     }).catch(reason => {
       res.status(500).send();
@@ -144,7 +145,7 @@ router.put('/:id(\\d+)',
         id: req.params.id,
       }
     }).then(() => {
-      res.status(200).send({success: 'regla actualizada'});
+      responder(res.status(200), 0, 'regla actualizada');
     }).catch(reason => {
       res.status(500).send();
       console.log(reason);
@@ -169,7 +170,7 @@ router.delete('/:id(\\d+)',
         return regla.destroy();
       }
     }).then(() => {
-      res.status(200).send({success: 'regla eliminada'});
+      responder(res.status(200), 0, 'regla eliminada');
     }).catch((reason) => {
       if(reason.message === '404') {
         res.status(404).send();
@@ -182,22 +183,33 @@ router.delete('/:id(\\d+)',
 );
 
 
-router.get('/equivalencia/:monto(\\d+)',
+router.get('/equivalencia/',
   // log de la operación
   (req, res, next) => {
     console.log(`RETORNAR EQUIVALENCIA DE PUNTOS`);
     next();
   },
 
+  // validar la peticion
+  (req, res, next) => {
+    let monto = req.query.monto;
+    if(!Number.isInteger(Number.parseFloat(monto)) || parseInt(monto) < 0) {
+      responder(res.status(400), 1, 'especifique correctamente el monto');
+    } else {
+      req.query.monto = parseInt(monto);
+      next();
+    }
+  },
+
   // enviar la respuesta
   (req, res) => {
     return Regla.findAll({
       where: {
-        limInferior: { [Op.lte]: req.params.monto },
-        limSuperior: { [Op.gt]: req.params.monto },
+        limInferior: { [Op.lte]: req.query.monto },
+        limSuperior: { [Op.gt]: req.query.monto },
       }
     }).then(reglas => {
-      let puntosCalculados = Math.floor(req.params.monto / reglas[0].equivalencia);
+      let puntosCalculados = Math.floor(req.query.monto / reglas[0].equivalencia);
       res.status(200).send({ puntos: puntosCalculados })
     }).catch(reason => {
       res.status(500).send();

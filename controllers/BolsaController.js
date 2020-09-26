@@ -1,113 +1,107 @@
-//const express = require('express');
-let express = require('express');
+const express = require('express');
 const router = express.Router();
 const Regla = require('../models').Regla;
-const ParamDuracion = require('../models').ParamDuracion;
 const Bolsa = require('../models').Bolsa;
+const Cliente = require('../models').Cliente;
 const Op = require('sequelize').Op;
+const responder = require('./util').responder;
 
 
-// asignar puntos (se genera una Bolsa)
 router.post('/',
+  // log de la operación
   (req, res, next) => {
-    console.log(`Generar una bolsa`); 
+    console.log('CREAR BOLSA DE PUNTOS');
     next();
   },
-  //servicio 8.a
-  (req, res) => {
-    return Regla.findAll(
-      {
-        where: {
-          [Op.and]: [{ limInferior: { [Op.lte]: req.body.monto } }, { limSuperior: { [Op.gt]: req.body.monto } }]
-        }
-      }
-    )
-      .then(reglas => {
-        var fechaAhora = new Date();
 
-        //calcular fecha de caducidad de acuerdo a la fecha de asignacion
-        var duracionDias = 0;
-        ParamDuracion.findAll(
-          where = {
-            [Op.and]: [{ validez_ini: { [Op.lte]: fechaAhora } }, { validez_fin: { [Op.gte]: fechaAhora } }]
-          }
-        )
-          .then(paramDuracion => {
-            //calculo de puntos desde reglas
-            var puntosCalculados = Math.floor(req.body.monto / reglas[0].equivalencia);
-            //para vencimiento en puntaje en dias
-            var fechaVencimiento = new Date();
-            fechaVencimiento.setDate(fechaAhora.getDate() + paramDuracion[0].duracion);
-            // Asignar puntaje segun reglas
-            return Bolsa.create(
-              {
-                cliente_id: req.body.idCliente,
-                fechaCaducidad: fechaVencimiento.toString(),
-                asignado: puntosCalculados,
-                saldo: puntosCalculados,
-                montoOp: req.body.monto
-              }
-            )
-              .then((bolsa) => res.status(201).send(bolsa))
-              .catch((error) => res.status(500).send(error))
-          })
-
+  // validar creacion de bolsa
+  (req, res, next) => {
+    if(!Number.isInteger(req.body.monto) || req.body.monto <= 0) {
+      responder(res.status(400), 1, 'especifique correctamente el monto');
+    } else {
+      Cliente.findByPk(req.body.clienteId).then(cliente => {
+        if(cliente === null) {
+          responder(res.status(400), 1, 'especifique correctamente el id del cliente');
+        } else next();
+      }).catch(reason => {
+        res.status(500).send();
+        console.log(reason);
       })
-      .catch(error => {
-        console.log(error);
-        res.status(500).send('error del servidor');
+    }
+  },
+
+  // ejecutar la petición
+  (req, res) => {
+    Regla.findAll({
+      where: {
+        limInferior: { [Op.lte]: req.body.monto },
+        limSuperior: { [Op.gt]: req.body.monto },
+      }
+    }).then(reglas => {
+      let puntosCalculados = Math.floor(req.body.monto / reglas[0].equivalencia);
+      let fechaVencimiento = new Date();
+      fechaVencimiento.setDate((new Date()).getDate() + 365); // 365 debe ser cambiable
+      // Asignar puntaje segun reglas
+      return Bolsa.create({
+        cliente_id: req.body.clienteId,
+        fechaCaducidad: fechaVencimiento.toString(),
+        asignado: puntosCalculados,
+        saldo: puntosCalculados,
+        montoOp: req.body.monto
       });
+    }).then(bolsa => {
+      res.status(201).send(bolsa);
+    }).catch(reason => {
+      res.status(500).send();
+      console.log(reason);
+    });
   },
 );
 
 
 router.get('/',
+  // log de la operación
   (req, res, next) => {
-    console.log(`Listar bolsas (para reporte)`);
+    console.log('LISTAR BOLSAS DE PUNTOS');
     next();
   },
   
-  /* middleware para procesar los query params para la lista de bolsas */
+  // validar query params
   (req, res, next) => {
-    const clienteId = parseFloat(req.query.clienteId);
-    const venceEn = parseFloat(req.query.venceEn);
-    const estado = req.query.estado;
-
-    if(req.query.clienteId !== undefined && !Number.isInteger(clienteId)) {
-      res.status(400).send({error: 'especifique correctamente el id del cliente'});
-    } else if(req.query.venceEn !== undefined && !Number.isInteger(venceEn)) {
-      res.status(400).send({error: 'especifique correctamente en cuántos días es el vencimiento'});
-    } else if(req.query.estado !== undefined && !['vigente', 'vencido'].includes(estado)) {
-      res.status(400).send({error: 'especifique correctamente el estado de la bolsa'});
+    let venceEn = req.query.venceEn;
+    if(venceEn !== undefined && Number.isNaN(parseFloat(venceEn))) {
+      responder(res.status(400), 1, 'especifique correctamente en cuántos días es el vencimiento');
+    } else if(req.query.estado !== undefined && !['vigente', 'vencido'].includes(req.query.estado)) {
+      responder(res.status(400), 1, 'especifique correctamente el estado (debe ser vigente o vencido)');
     } else {
-      req.bolsa = {};
-      if(req.query.clienteId !== undefined) req.bolsa.clienteId = clienteId;
-      if(req.query.venceEn !== undefined) req.bolsa.venceEn = venceEn;
-      if(req.query.estado !== undefined) req.bolsa.estado = estado;
+      req.query.venceEn = parseFloat(venceEn);
       next();
     }
   },
-  /* envía la lista de bolsas */
+
+  // envía la lista de bolsas
   (req, res) => {
     const where = {};
 
-    if(req.bolsa.clienteId !== undefined) {
-      where.cliente_id = req.bolsa.clienteId;
+    if(req.query.clienteId) {
+      where.cliente_id = req.query.clienteId;
     }
     
     where.fechaCaducidad = {};
-    var flag = false; // indica si hay que aplicar filtros para la fecha de caducidad
+    let flag = false; // indica si hay que aplicar filtros para la fecha de caducidad
 
-    if(req.bolsa.venceEn !== undefined) {
+    if(req.query.venceEn !== undefined) {
+      const dt = new Date();
+      dt.setTime(dt.getTime() + req.query.venceEn * 24 * 60 * 60 * 1000);
       flag = true;
-      const dt1 = new Date(); const dt2 = new Date();
-      dt1.setTime(dt1.getTime() + (req.bolsa.venceEn - 1) * 24 * 60 * 60 * 1000); // instante1 = ahora + x dias (un dia = 24 horas)
-      dt2.setTime(dt2.getTime() + (req.bolsa.venceEn + 1) * 24 * 60 * 60 * 1000); // instante2 = ahora + (x + 1) dias
-      Object.assign(where.fechaCaducidad, {[Op.gte]: dt1, [Op.lte]: dt2});
+      Object.assign(
+        where.fechaCaducidad,
+        {[Op.lte]: dt}
+      );
     }
 
-    if(req.bolsa.estado !== undefined) {
-      if(req.bolsa.estado === 'vigente') {
+    if(req.query.estado !== undefined) {
+      if(req.query.estado === 'vigente') {
         flag = true;
         Object.assign(where.fechaCaducidad, {[Op.gt]: new Date()});
         where.saldo = {[Op.gt]: 0};
@@ -127,8 +121,14 @@ router.get('/',
       attributes: {exclude: ['cliente_id']},
       include: [{model: Cliente, as: 'cliente'}],
       where: where,
-    }).then(bolsas => res.status(200).send(bolsas))
+    }).then(bolsas =>{
+      res.status(200).send(bolsas)
+    }).catch(reason => {
+      res.status(500).send();
+      console.log(reason);
+    })
   },
 );
+
 
 module.exports = router;

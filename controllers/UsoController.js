@@ -1,7 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const models = require('../models');
+const Bolsa = require('../models').Bolsa;
+const Premio = require('../models').Premio;
+const Cliente = require('../models').Cliente;
+const Uso = require('../models').Uso;
+const UsoDetalle = require('../models').UsoDetalle;
 const nodeMailer = require('nodemailer');
+const sequelize = require('../models').sequelize;
+const Op = require('sequelize').Op;
 
 
 function enviarCorreo(destinatario, cantidad) {
@@ -27,100 +33,109 @@ function enviarCorreo(destinatario, cantidad) {
   });
 }
 
+
 router.get('/',
+  // log de la operación
   (req, res, next) => {
-    console.log(`Listar usos`); 
+    console.log('LISTAR USOS DE PUNTOS');
     next();
   },
+
+  // envía la respuesta
   (req, res) => {
-    var campos = [];
-    if (req.query.idCliente)
-      campos.push({ cliente_id: req.query.idCliente });
-    if (req.query.idPremio)
-      campos.push({ premio_id: req.query.idPremio });
-    if (req.query.fechaInicio && req.query.fechaFin) {
-      campos.push({ fecha: { [models.Sequelize.Op.gte]: req.query.fechaInicio } });
-      campos.push({ fecha: { [models.Sequelize.Op.lte]: req.query.fechaFin } });
+    let campos = [];
+    if (req.query.clienteId)
+      campos.push({ cliente_id: req.query.clienteId });
+    if (req.query.premioId)
+      campos.push({ premio_id: req.query.premioId });
+    if (req.query.fechaInicio)
+      campos.push({ fecha: { [Op.gte]: req.query.fechaInicio } });
+    if(req.query.fechaFin)
+      campos.push({ fecha: { [Op.lte]: req.query.fechaFin } });
 
-    }
-
-    return models.Uso.findAll({
+    return Uso.findAll({
       attributes: ['id', 'utilizado', 'fecha'],
-      include: [{ model: models.Cliente, as: 'cliente' }, { model: models.Premio, as: 'premio' },{ model: models.UsoDetalle, as: 'detalles' }],
-      where: { [models.Sequelize.Op.and]: campos }
-    })
-      .then(usos => res.status(200).send(usos))
-      .catch(error => {
-        console.log(error);
-        res.status(500).send('error del servidor');
-      });
+      include: [{ model: Cliente, as: 'cliente' }, { model: Premio, as: 'premio' },{ model: UsoDetalle, as: 'detalles' }],
+      where: { [Op.and]: campos }
+    }).then(usos => {
+      res.status(200).send(usos)
+    }).catch(reason => {
+      res.status(500).send();
+      console.log(reason);
+    });
   },
 );
 
 
-router.post('/usar',
+router.post('/',
+  // log de la operación
   (req, res, next) => {
-    console.log('Uso de puntos');
+    console.log('USAR PUNTOS');
     next();
   },
-  /* valida el cliente y el premio y que el cliente tiene la cantidad necesaria de puntos */
+
+  // valida el cliente y el premio y que el cliente tiene la cantidad necesaria de puntos
   (req, res, next) => {
     const clienteId = req.body.clienteId;
     const premioId = req.body.premioId;
-    if (typeof (clienteId) !== 'number' || typeof (premioId) !== 'number') { // tambien verifica que este definido
-      res.status(400).send({ error: 'especifique (correctamente) los ids del cliente y del premio' });
-    } else {
-      Cliente.findByPk(clienteId).then((cliente) => {
-        if (cliente === null) {
-          res.status(400).send({ error: 'no existe cliente con el id recibido' });
-        } else {
-          req.cliente = cliente;
-          return Premio.findByPk(premioId);
-        }
-      }).then((premio) => {
-        if (premio === null) {
-          res.status(400).send({ error: 'no existe premio con el id recibido' });
-        } else {
-          req.premio = premio;
-          return Bolsa.findAll({
-            where: {
-              cliente_id: clienteId,
-              fechaCaducidad: { [Op.gt]: new Date() },
-              saldo: { [Op.gt]: 0 },
-            },
-            order: [['fechaCaducidad', 'ASC'],],
-          });
-        }
-      }).then((bolsas) => {
-        let saldoTotal = 0;
-        bolsas.forEach(bolsa => saldoTotal += bolsa.saldo);
-        if (saldoTotal < req.premio.requerido) {
-          res.status(200).send({
-            resultado: 1,
-            mensaje: 'El cliente no tiene la cantidad requerida de puntos.',
-            saldoTotal: saldoTotal,
-            requerido: req.premio.requerido,
-          });
-        } else {
-          req.bolsas = bolsas;
-          next();
-        }
-      });
-    }
+    Cliente.findByPk(clienteId).then((cliente) => {
+      if(cliente === null) {
+        return Promise.reject({resultado: 2, mensaje: 'no existe cliente con el id recibido'});
+      } else {
+        req.cliente = cliente;
+        return Premio.findByPk(premioId);
+      }
+    }).then((premio) => {
+      if (premio === null) {
+        return Promise.reject({resultado: 2, mensaje: 'no existe premio con el id recibido'});
+      } else {
+        req.premio = premio;
+        return Bolsa.findAll({
+          where: {
+            cliente_id: clienteId,
+            fechaCaducidad: { [Op.gt]: new Date() },
+            saldo: { [Op.gt]: 0 },
+          },
+          order: [['fechaCaducidad', 'ASC'],],
+        });
+      }
+    }).then((bolsas) => {
+      let saldoTotal = 0;
+      bolsas.forEach(bolsa => saldoTotal += bolsa.saldo);
+      if(saldoTotal >= req.premio.requerido) {
+        req.bolsas = bolsas;
+        return Promise.resolve();
+      } else {
+        return Promise.reject({
+          resultado: 1,
+          mensaje: 'el cliente no tiene la cantidad requerida de puntos',
+          saldoTotal: saldoTotal,
+          requerido: req.premio.requerido,
+        });
+      }
+    }).then(() => {
+      next();
+    }).catch(reason => {
+      if(reason.resultado !== undefined) { // reason creado acá
+        res.status(400).send(reason);
+      } else {
+        res.status(500).send();
+        console.log(reason);
+      }
+    });
   },
 
-  /* usa los puntos (una vez validado) */
+  // ejecuta la petición
   (req, res) => {
     sequelize.transaction(t => {
-
-      return Uso.create(
-        {
-          utilizado: req.premio.requerido,
-          fecha: new Date(),
-          cliente_id: req.cliente.id,
-          premio_id: req.premio.id,
-        }, {transaction: t}
-      ).then((uso) => {
+      return Uso.create({
+        utilizado: req.premio.requerido,
+        fecha: new Date(),
+        cliente_id: req.cliente.id,
+        premio_id: req.premio.id,
+      }, {
+        transaction: t
+      }).then((uso) => {
         req.usoDetalles = [];
         req.bolsasUsadas = [];
         let utilizar = req.premio.requerido;
@@ -141,21 +156,17 @@ router.post('/usar',
           req.bolsasUsadas.push(bolsa);
         }
 
-        promesas = [];
+        let promesas = [];
 
         req.bolsasUsadas.forEach(bolsa => {
-          promesas.push(
-            bolsa.save({
-              fields: ['utilizado', 'saldo'],
-              transaction: t,
-            })
-          );
+          promesas.push(bolsa.save({
+            fields: ['utilizado', 'saldo'],
+            transaction: t,
+          }));
         });
 
         req.usoDetalles.forEach(usoDetalle => {
-          promesas.push(
-            usoDetalle.save({transaction: t})
-          );
+          promesas.push(usoDetalle.save({transaction: t}));
         });
 
         return Promise.all(promesas);
@@ -163,14 +174,15 @@ router.post('/usar',
     }).then(result => {
       res.status(200).send({
         resultado: 0,
-        mensaje: 'Puntos utilizados exitosamente.',
+        mensaje: 'puntos utilizados exitosamente',
       });
       enviarCorreo(req.cliente.email, req.premio.requerido);
-    }).catch(error => {
-      console.log(error);
+    }).catch(reason => {
+      res.status(500).send();
+      console.log(reason);
     });
   },
-
 );
+
 
 module.exports = router;
