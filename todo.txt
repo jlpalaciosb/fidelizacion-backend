@@ -1,8 +1,7 @@
-- eliminar guiones bajos de la api (por ejemplo cliente_id, que sea clienteId)
 - eliminar vistas (los que estan en views)
-- controlar log de errores (por ejemplo retorna al consumidor un html con el stacktrace,
-que pasa en produccion?)
-- autorizacion
+- controlar log de errores (por ejemplo retorna al consumidor un html con el stacktrace)
+- entorno de desarrollo, test y produccion
+- autenticación y autorización
 - corregir unresolved variables en webstorm
 -* corregir errores en la api (validacion) (uso correcto de las promesas de js)
 -* responder resultado, mensaje

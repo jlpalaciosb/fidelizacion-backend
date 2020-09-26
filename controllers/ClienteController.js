@@ -18,7 +18,7 @@ router.get('/',
       res.status(200).send(clientes);
     }).catch((reason) => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );

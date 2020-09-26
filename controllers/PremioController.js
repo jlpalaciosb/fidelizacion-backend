@@ -15,9 +15,9 @@ router.post('/',
   (req, res, next) => {
     const descripcion = req.body.descripcion;
     const requerido = req.body.requerido;
-    if(typeof(descripcion) !== 'string' || descripcion.trim() === '') {
+    if (typeof(descripcion) !== 'string' || descripcion.trim() === '') {
       responder(res.status(400), 1, 'especifique correctamente la descripción');
-    } else if(typeof(requerido) !== 'number' || !Number.isInteger(requerido) || requerido <= 0) {
+    } else if (typeof(requerido) !== 'number' || !Number.isInteger(requerido) || requerido <= 0) {
       responder(res.status(400), 1, 'especifique correctamente la cantidad requerida de puntos');
     } else {
       req.body.descripcion = descripcion.trim();
@@ -33,11 +33,11 @@ router.post('/',
     }).then(premio => {
       res.status(201).send(premio);
     }).catch((reason) => {
-      if(reason.name === 'SequelizeUniqueConstraintError') {
+      if (reason.name === 'SequelizeUniqueConstraintError') {
         responder(res.status(400), 1, 'ya existe otro premio con la misma descripción');
       } else {
         res.status(500).send();
-        console.log(reason);
+        console.error(reason);
       }
     });
   },
@@ -57,7 +57,7 @@ router.get('/',
       res.status(200).send(premios)
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -73,14 +73,14 @@ router.get('/:id(\\d+)',
   // enviar la respuesta
   (req, res) => {
     Premio.findByPk(req.params.id).then(premio => {
-      if(premio !== null) {
+      if (premio !== null) {
         res.status(200).send(premio);
       } else {
         res.status(404).send();
       }
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -97,14 +97,14 @@ router.put('/:id(\\d+)',
   (req, res, next) => {
     const descripcion = req.body.descripcion;
     const requerido = req.body.requerido;
-    if(descripcion !== undefined &&
+    if (descripcion !== undefined &&
         (typeof(descripcion) !== 'string' || descripcion.trim() === '')) {
       responder(res.status(400), 1, 'especifique la descripcion correctamente');
-    } else if(requerido !== undefined &&
+    } else if (requerido !== undefined &&
         (typeof(requerido) !== 'number' || !Number.isInteger(requerido) || requerido <= 0)) {
       responder(res.status(400), 1, 'especifique correctamente la cantidad requerida de puntos');
     } else {
-      if(descripcion !== undefined) req.body.descripcion = descripcion.trim();
+      if (descripcion !== undefined) req.body.descripcion = descripcion.trim();
       next();
     }
   },
@@ -123,9 +123,9 @@ router.put('/:id(\\d+)',
     }).then(() => {
       responder(res.status(200), 0, 'premio actualizado');
     }).catch((reason) => {
-      if(reason.message === '404') {
+      if (reason.message === '404') {
         res.status(404).send();
-      } else if(reason.name === 'SequelizeUniqueConstraintError') {
+      } else if (reason.name === 'SequelizeUniqueConstraintError') {
         responder(res.status(400), 1, 'ya existe otro premio con la misma descripción');
       } else {
         res.status(500).send();
@@ -146,7 +146,7 @@ router.delete('/:id(\\d+)',
   // elimina un premio en específico
   (req, res) => {
     Premio.findByPk(req.params.id).then(premio => {
-      if(premio === null) {
+      if (premio === null) {
         return Promise.reject(new Error('404'));
       } else {
         return premio.destroy();
@@ -154,13 +154,13 @@ router.delete('/:id(\\d+)',
     }).then(() => {
       responder(res.status(200), 0, 'premio eliminado');
     }).catch((reason) => {
-      if(reason.name === 'SequelizeForeignKeyConstraintError') {
+      if (reason.name === 'SequelizeForeignKeyConstraintError') {
         responder(res.status(400), 1, 'no se puede eliminar el premio porque es referenciado por un uso');
-      } else if(reason.message === '404') {
+      } else if (reason.message === '404') {
         res.status(404).send();
       } else {
         res.status(500).send();
-        console.log(reason);
+        console.error(reason);
       }
     });
   },

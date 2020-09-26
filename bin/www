@@ -4,6 +4,8 @@
  * Module dependencies.
  */
 
+require('dotenv').config(); // configurar variables de entorno
+
 var app = require('../app');
 var debug = require('debug')('fidelizacion-backend:server');
 var http = require('http');

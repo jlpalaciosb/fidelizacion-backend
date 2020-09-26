@@ -3,6 +3,14 @@ create database fidelizacion_db character set utf8;
 
 use fidelizacion_db;
 
+CREATE TABLE `usuario` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `nombre_de_usuario` varchar(30) NOT NULL,
+ `contrasenha_hash` varchar(60) NOT NULL COMMENT 'hash generado con bcrypt 3.0.6 (npm)',
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `nombre_de_usuario` (`nombre_de_usuario`)
+);
+
 CREATE TABLE `cliente` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) NOT NULL,

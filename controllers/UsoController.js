@@ -50,7 +50,7 @@ router.get('/',
       campos.push({ premio_id: req.query.premioId });
     if (req.query.fechaInicio)
       campos.push({ fecha: { [Op.gte]: req.query.fechaInicio } });
-    if(req.query.fechaFin)
+    if (req.query.fechaFin)
       campos.push({ fecha: { [Op.lte]: req.query.fechaFin } });
 
     return Uso.findAll({
@@ -61,7 +61,7 @@ router.get('/',
       res.status(200).send(usos)
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -79,7 +79,7 @@ router.post('/',
     const clienteId = req.body.clienteId;
     const premioId = req.body.premioId;
     Cliente.findByPk(clienteId).then((cliente) => {
-      if(cliente === null) {
+      if (cliente === null) {
         return Promise.reject({resultado: 2, mensaje: 'no existe cliente con el id recibido'});
       } else {
         req.cliente = cliente;
@@ -102,7 +102,7 @@ router.post('/',
     }).then((bolsas) => {
       let saldoTotal = 0;
       bolsas.forEach(bolsa => saldoTotal += bolsa.saldo);
-      if(saldoTotal >= req.premio.requerido) {
+      if (saldoTotal >= req.premio.requerido) {
         req.bolsas = bolsas;
         return Promise.resolve();
       } else {
@@ -116,11 +116,11 @@ router.post('/',
     }).then(() => {
       next();
     }).catch(reason => {
-      if(reason.resultado !== undefined) { // reason creado acá
+      if (reason.resultado !== undefined) { // reason creado acá
         res.status(400).send(reason);
       } else {
         res.status(500).send();
-        console.log(reason);
+        console.error(reason);
       }
     });
   },
@@ -179,7 +179,7 @@ router.post('/',
       enviarCorreo(req.cliente.email, req.premio.requerido);
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );

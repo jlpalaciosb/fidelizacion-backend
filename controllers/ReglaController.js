@@ -9,24 +9,24 @@ function validarRegla(req, res, next) {
   let limInferior = req.body.limInferior;
   let limSuperior = req.body.limSuperior;
   let equivalencia = req.body.equivalencia;
-  if(typeof(limInferior) !== 'number' || !Number.isInteger(limInferior) || limInferior < 0) {
+  if (typeof(limInferior) !== 'number' || !Number.isInteger(limInferior) || limInferior < 0) {
     responder(res.status(400), 1, 'especifique correctamente el límite inferior');
-  } else if(typeof(limSuperior) !== 'number' || !Number.isInteger(limSuperior) ||
+  } else if (typeof(limSuperior) !== 'number' || !Number.isInteger(limSuperior) ||
     limSuperior <= limInferior) {
     responder(res.status(400), 1, 'especifique correctamente el límite superior');
-  } else if(typeof(equivalencia) !== 'number' || !Number.isInteger(equivalencia) || equivalencia <= 0) {
+  } else if (typeof(equivalencia) !== 'number' || !Number.isInteger(equivalencia) || equivalencia <= 0) {
     responder(res.status(400), 1, 'especifique correctamente la equivalencia');
   } else { // CONTROLAR SOLAPAMIENTO
     let where = {};
-    if(req.put) where.id = {[Op.ne]: req.params.id};
+    if (req.put) where.id = {[Op.ne]: req.params.id};
     where.limInferior = {[Op.lt]: req.body.limSuperior};
     where.limSuperior = {[Op.gt]: req.body.limInferior};
     Regla.findAll({where: where}).then(reglas => {
-      if(reglas.length > 0) responder(res.status(400), 1, 'rango solapado');
+      if (reglas.length > 0) responder(res.status(400), 1, 'rango solapado');
       else next()
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   }
 }
@@ -48,10 +48,11 @@ router.post('/',
       limSuperior: req.body.limSuperior,
       equivalencia: req.body.equivalencia
     }).then((regla) => {
+      console.log(regla);
       res.status(201).send(regla);
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -72,7 +73,7 @@ router.get('/',
       res.status(200).send(reglas);
     }).catch((reason) => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -88,14 +89,14 @@ router.get('/:id(\\d+)',
   // envía la respuesta
   (req, res) => {
     return Regla.findByPk(req.params.id).then(regla => {
-      if(regla === null) {
+      if (regla === null) {
         res.status(404).send();
       } else {
         res.status(200).send(regla);
       }
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     })
   },
 );
@@ -111,23 +112,23 @@ router.put('/:id(\\d+)',
   // validar put
   (req, res, next) => {
     Regla.findByPk(req.params.id).then(regla => {
-      if(regla === null) {
+      if (regla === null) {
         return Promise.reject(new Error('404'));
       } else {
         req.put = true;
-        if(req.body.limInferior === undefined) req.body.limInferior = regla.limInferior;
-        if(req.body.limSuperior === undefined) req.body.limSuperior = regla.limSuperior;
-        if(req.body.equivalencia === undefined) req.body.equivalencia = regla.equivalencia;
+        if (req.body.limInferior === undefined) req.body.limInferior = regla.limInferior;
+        if (req.body.limSuperior === undefined) req.body.limSuperior = regla.limSuperior;
+        if (req.body.equivalencia === undefined) req.body.equivalencia = regla.equivalencia;
         return Promise.resolve();
       }
     }).then(() => {
       next();
     }).catch(reason => {
-      if(reason.message === '404') {
+      if (reason.message === '404') {
         res.status(404).send();
       } else {
         res.status(500).send();
-        console.log(reason);
+        console.error(reason);
       }
     });
   },
@@ -148,7 +149,7 @@ router.put('/:id(\\d+)',
       responder(res.status(200), 0, 'regla actualizada');
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -164,7 +165,7 @@ router.delete('/:id(\\d+)',
   // elimina un regla en específico
   (req, res) => {
     Regla.findByPk(req.params.id).then(regla => {
-      if(regla === null) {
+      if (regla === null) {
         return Promise.reject(new Error('404'));
       } else {
         return regla.destroy();
@@ -172,11 +173,11 @@ router.delete('/:id(\\d+)',
     }).then(() => {
       responder(res.status(200), 0, 'regla eliminada');
     }).catch((reason) => {
-      if(reason.message === '404') {
+      if (reason.message === '404') {
         res.status(404).send();
       } else {
         res.status(500).send();
-        console.log(reason);
+        console.error(reason);
       }
     });
   },
@@ -193,7 +194,7 @@ router.get('/equivalencia/',
   // validar la peticion
   (req, res, next) => {
     let monto = req.query.monto;
-    if(!Number.isInteger(Number.parseFloat(monto)) || parseInt(monto) < 0) {
+    if (!Number.isInteger(Number.parseFloat(monto)) || parseInt(monto) < 0) {
       responder(res.status(400), 1, 'especifique correctamente el monto');
     } else {
       req.query.monto = parseInt(monto);
@@ -213,7 +214,7 @@ router.get('/equivalencia/',
       res.status(200).send({ puntos: puntosCalculados })
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   }
 );

@@ -16,16 +16,16 @@ router.post('/',
 
   // validar creacion de bolsa
   (req, res, next) => {
-    if(!Number.isInteger(req.body.monto) || req.body.monto <= 0) {
+    if (!Number.isInteger(req.body.monto) || req.body.monto <= 0) {
       responder(res.status(400), 1, 'especifique correctamente el monto');
     } else {
       Cliente.findByPk(req.body.clienteId).then(cliente => {
-        if(cliente === null) {
+        if (cliente === null) {
           responder(res.status(400), 1, 'especifique correctamente el id del cliente');
         } else next();
       }).catch(reason => {
         res.status(500).send();
-        console.log(reason);
+        console.error(reason);
       })
     }
   },
@@ -53,7 +53,7 @@ router.post('/',
       res.status(201).send(bolsa);
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     });
   },
 );
@@ -69,9 +69,9 @@ router.get('/',
   // validar query params
   (req, res, next) => {
     let venceEn = req.query.venceEn;
-    if(venceEn !== undefined && Number.isNaN(parseFloat(venceEn))) {
+    if (venceEn !== undefined && Number.isNaN(parseFloat(venceEn))) {
       responder(res.status(400), 1, 'especifique correctamente en cuántos días es el vencimiento');
-    } else if(req.query.estado !== undefined && !['vigente', 'vencido'].includes(req.query.estado)) {
+    } else if (req.query.estado !== undefined && !['vigente', 'vencido'].includes(req.query.estado)) {
       responder(res.status(400), 1, 'especifique correctamente el estado (debe ser vigente o vencido)');
     } else {
       req.query.venceEn = parseFloat(venceEn);
@@ -83,14 +83,14 @@ router.get('/',
   (req, res) => {
     const where = {};
 
-    if(req.query.clienteId) {
+    if (req.query.clienteId) {
       where.cliente_id = req.query.clienteId;
     }
     
     where.fechaCaducidad = {};
     let flag = false; // indica si hay que aplicar filtros para la fecha de caducidad
 
-    if(req.query.venceEn !== undefined) {
+    if (req.query.venceEn !== undefined) {
       const dt = new Date();
       dt.setTime(dt.getTime() + req.query.venceEn * 24 * 60 * 60 * 1000);
       flag = true;
@@ -100,8 +100,8 @@ router.get('/',
       );
     }
 
-    if(req.query.estado !== undefined) {
-      if(req.query.estado === 'vigente') {
+    if (req.query.estado !== undefined) {
+      if (req.query.estado === 'vigente') {
         flag = true;
         Object.assign(where.fechaCaducidad, {[Op.gt]: new Date()});
         where.saldo = {[Op.gt]: 0};
@@ -115,7 +115,7 @@ router.get('/',
       }
     }
     
-    if(!flag) delete where.fechaCaducidad;
+    if (!flag) delete where.fechaCaducidad;
 
     Bolsa.findAll({
       attributes: {exclude: ['cliente_id']},
@@ -125,7 +125,7 @@ router.get('/',
       res.status(200).send(bolsas)
     }).catch(reason => {
       res.status(500).send();
-      console.log(reason);
+      console.error(reason);
     })
   },
 );
