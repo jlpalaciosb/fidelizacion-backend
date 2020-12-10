@@ -16,10 +16,7 @@
     "timezone": "America/Asuncion"
   },
   "production": {
-    "username": "b9706f58167a77",
-    "password": "6cb51d46",
-    "database": "heroku_1d7b37758ddfcae",
-    "host": "us-cdbr-east-02.cleardb.com",
+    "use_env_variable": "CLEARDB_DATABASE_URL",
     "dialect": "mysql",
     "timezone": "America/Asuncion"
   }
