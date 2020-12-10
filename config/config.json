@@ -16,10 +16,10 @@
     "timezone": "America/Asuncion"
   },
   "production": {
-    "username": "root",
-    "password": "12345",
-    "database": "fidelizacion_db",
-    "host": "127.0.0.1",
+    "username": "b9706f58167a77",
+    "password": "6cb51d46",
+    "database": "heroku_1d7b37758ddfcae",
+    "host": "us-cdbr-east-02.cleardb.com",
     "dialect": "mysql",
     "timezone": "America/Asuncion"
   }
