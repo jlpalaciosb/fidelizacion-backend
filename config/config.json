@@ -16,7 +16,7 @@
     "timezone": "America/Asuncion"
   },
   "production": {
-    "use_env_variable": "CLEARDB_DATABASE_URL",
+    "use_env_variable": "JAWSDB_URL",
     "dialect": "mysql",
     "timezone": "America/Asuncion"
   }
